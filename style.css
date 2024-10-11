@@ -20,6 +20,7 @@ time, mark, audio, video {
 }
 
 :root {
+    --red: #D0342C;
     --yellow: #FFFF00;
     --black: #000000;
     --white: #FFFFFF;
@@ -71,9 +72,14 @@ form {
 }
 
 .clear {
+    color: var(--black);
     border: none;
     background: transparent;
     cursor: pointer;
+}
+
+.clear[disabled]{
+    opacity: 0.5;
 }
 
 .buttons{
@@ -96,6 +102,16 @@ form {
     transition: background-color 0.3s ease;
 }
 
+.button[disabled]{
+    opacity: 0.7;
+}
+
 .button:hover {
     background-color: #444;
+}
+
+.error{
+    color: var(--red);
+    padding: 0.5;
+    display: none;
 }
