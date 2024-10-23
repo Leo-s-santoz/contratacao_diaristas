@@ -47,6 +47,18 @@ function validateEmail(email) {
   return emailPattern.test(email);
 }
 
+/*function login() {
+  firebase
+    .auth()
+    .signInWithEmailAndPassword(form.email().value, form.password().value)
+    .then((response) => {
+      console.log("success", response);
+    })
+    .cath((error) => {
+      console.log("error", error);
+    });
+}*/
+
 function login() {
   window.location.href = "/pages/home/home.html";
 }
