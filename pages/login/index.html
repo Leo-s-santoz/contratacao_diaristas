@@ -12,20 +12,20 @@
         <form action="">
             <h1 class="title">Login</h1>
 
-            <div>
+            <div class="field">
                 <div><label class="label" for="email">email</label></div>
                 <input class="input" type="email" id="email" placeholder="ex: joao@gmail.com" onchange="onChangeEmail()"/>
                 <div class="error" id="EmailRequiredError">É necessário um email</div>
                 <div class="error" id="EmailInvalidError">Email é inválido</div>
             </div>
             
-            <div>
+            <div class="field">
                 <div><label class="label" for="password">senha</label></div>
                 <input class="input" type="password" id="password" placeholder="Sua senha" onchange="onChangePassword()"/>
                 <div class="error" id="PasswordRequiredError">É necessário uma senha</div>
             </div>
 
-            <div class="buttons">
+            <div class="buttons field">
                 <div><button class="clear" type="button" id="RecoverPasswordButton" disabled="true">Esqueci Minha Senha</button></div>
 
                 <div><button class="button" type="button" id="LoginButton" disabled="true" onclick="login()">Entrar</button></div>

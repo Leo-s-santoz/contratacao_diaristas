@@ -13,9 +13,9 @@
         <h1 class="title">Quem é você?</h1>
 
         <div class="buttons">
-            <div><button class="button" type="button" id="DiaristaBtn" onclick="disableBtn('Diarista')">Diarista</button></div>
+            <div><button class="button" type="button" id="diaristaBtn" onclick="disableBtn('Diarista')">Diarista</button></div>
 
-            <div><button class="button" type="button" id="ContratanteBtn" onclick="disableBtn('Contratante')">Contratante</button></div>
+            <div><button class="button" type="button" id="contratanteBtn" onclick="disableBtn('Contratante')">Contratante</button></div>
         </div>
     </section>
     
@@ -23,42 +23,43 @@
         <form action="">
             <h1 class="title">Cadastre-se e Acesse</h1>
             
-            <div>
+            <div class="field">
                 <label class="label" for="name">Nome Completo</label>
-                <input type="text" class="input" placeholder="Ex: Maria dos Santos" id="name">
-                <div class="error" id="ObrigatoryNameError">É necessário um Nome</div>
+                <input type="text" class="input" placeholder="Ex: Maria dos Santos" id="name" onchange="toggleNameError()"/>
+                <div class="error" id="obrigatoryNameError">É necessário um Nome</div>
             </div>
 
-            <div>
+            <div class="field">
                 <label class="label" for="cpf">CPF</label>
-                <input type="text" class="input" id="cpf">
-                <div class="error" id="ObrigatoryCpfError">É necessário um cpf</div>
-                <div class="error" id="ValidCpfError">CPF inválido</div>
+                <input type="number" class="input" id="cpf" onchange="toggleCpfError(this.value)">
+                <div class="error" id="obrigatoryCpfError">É necessário um cpf</div>
+                <div class="error" id="invalidCpfError">CPF inválido</div>
             </div>
 
-            <div class="select">
+            <div class="select field">
                 <label class="label" for="cities">Cidade</label>
-                <select class="options" name="cities" id="cities">
+                <select class="options" name="cities" id="cities" onchange="validateCity()">
                     <option value="">Selecione uma cidade</option>
-                    <option value="">Fraiburgo</option>
-                    <option value="">Videira</option> 
+                    <option value="Fraiburgo">Fraiburgo</option>
+                    <option value="Videira">Videira</option> 
                 </select>
             </div>
 
-            <div>
+            <div class="field">
                 <div><label class="label" for="email">email</label></div>
-                <input class="input" type="email" id="email" placeholder="ex: joao@gmail.com"/>
-                <div class="error" id="EmailRequiredError">É necessário um email</div>
-                <div class="error" id="EmailInvalidError">Email é inválido</div>
+                <input class="input" type="email" id="email" placeholder="ex: joao@gmail.com" onchange="toggleEmailError()" />
+                <div class="error" id="emailRequiredError">É necessário um email</div>
+                <div class="error" id="emailInvalidError">Email é inválido</div>
             </div>
             
-            <div>
+            <div class="field">
                 <div><label class="label" for="password">senha</label></div>
-                <input class="input" type="password" id="password" placeholder="Sua senha"/>
-                <div class="error" id="PasswordRequiredError">É necessário uma senha</div>
+                <input class="input" type="password" id="password" placeholder="Sua senha" onchange="togglePasswordError()"/>
+                <div class="error" id="passwordRequiredError">É necessário uma senha</div>
+                <div class="error" id="passwordRequirementsError">A senha deve conter letras maiusculas, minusculas, números e ao menos 6 dígitos</div>
             </div>
 
-            <div>
+            <div class="field">
                 <button class="button" type="submit" id="submit" disabled="true">Cadastrar</button>
             </div>
         </form>

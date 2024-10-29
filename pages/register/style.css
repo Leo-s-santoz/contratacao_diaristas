@@ -69,7 +69,6 @@ form {
 .input {
     width: -webkit-fill-available;
     padding: 10px;
-    margin-bottom: 20px;
     border: 2px solid var(--black);
     background-color: var(--white);
     color: var(--gray);

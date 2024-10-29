@@ -69,6 +69,10 @@ time, mark, audio, video {
 
 .error{
     color: var(--red);
-    padding: 0.5;
+    padding-top: 2px;
     display: none;
+}
+
+.field {
+    margin-bottom: 20px;
 }
