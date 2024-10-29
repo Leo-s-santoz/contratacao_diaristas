@@ -1,0 +1,77 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--yellow);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: var(--black);
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--black);
+}
+
+.container.form {
+    margin: 1rem;
+    display: none;
+}
+
+.select {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.options {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid var(--black);
+    background-color: var(--white);
+    color: var(--gray);
+    font-size: 1rem;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140"><polyline points="10,40 70,90 130,40" stroke="gray" stroke-width="15" fill="none" stroke-linecap="round" /></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+    cursor: pointer;
+}
+
+.select:focus {
+    outline: none;
+    border-color: var(--black); /* Mantém a borda preta ao focar */
+}
+
+
+form {
+    background-color: var(--light_gray);
+    padding: 40px;
+    border: 4px solid var(--black);
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 8px 8px 0px var(--black);
+}
+
+.label {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-bottom: 10px;
+}
+
+.input {
+    width: -webkit-fill-available;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 2px solid var(--black);
+    background-color: var(--white);
+    color: var(--gray);
+    font-size: 1rem;
+}

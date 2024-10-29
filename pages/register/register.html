@@ -4,42 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../../global.css">
+    <link rel="stylesheet" href="/global.css">
+    <link rel="stylesheet" href="./style.css">
+
 </head>
 <body>
     <section class="container">
         <h1 class="title">Quem é você?</h1>
 
         <div class="buttons">
-            <div><button class="button" type="button">Diarista</button></div>
+            <div><button class="button" type="button" id="DiaristaBtn" onclick="disableBtn('Diarista')">Diarista</button></div>
 
-            <div><button class=" button" type="button">Contratante</button></div>
+            <div><button class="button" type="button" id="ContratanteBtn" onclick="disableBtn('Contratante')">Contratante</button></div>
         </div>
     </section>
-    <section class="container">
+    
+    <section class="container form" id="form">
         <form action="">
-            <h1 class="title">Anuncie seus serviços na X</h1>
+            <h1 class="title">Cadastre-se e Acesse</h1>
             
             <div>
-                <label for="name">Nome Completo</label>
+                <label class="label" for="name">Nome Completo</label>
                 <input type="text" class="input" placeholder="Ex: Maria dos Santos" id="name">
-                <div class="error" id="ObrigatoryFieldError">É necessário um Nome</div>
+                <div class="error" id="ObrigatoryNameError">É necessário um Nome</div>
             </div>
 
             <div>
-                <label for="cpf">CPF</label>
+                <label class="label" for="cpf">CPF</label>
                 <input type="text" class="input" id="cpf">
-                <div class="error" id="ObrigatoryFieldError">É necessário um cpf</div>
+                <div class="error" id="ObrigatoryCpfError">É necessário um cpf</div>
                 <div class="error" id="ValidCpfError">CPF inválido</div>
             </div>
 
-            <div>
-                <select name="" id="states"></select>
-                <select name="" id="cities"></select>
-
-                <button type="submit">Cadastrar</button>
+            <div class="select">
+                <label class="label" for="cities">Cidade</label>
+                <select class="options" name="cities" id="cities">
+                    <option value="">Selecione uma cidade</option>
+                    <option value="">Fraiburgo</option>
+                    <option value="">Videira</option> 
+                </select>
             </div>
-    </form>
+
+            <div>
+                <div><label class="label" for="email">email</label></div>
+                <input class="input" type="email" id="email" placeholder="ex: joao@gmail.com"/>
+                <div class="error" id="EmailRequiredError">É necessário um email</div>
+                <div class="error" id="EmailInvalidError">Email é inválido</div>
+            </div>
+            
+            <div>
+                <div><label class="label" for="password">senha</label></div>
+                <input class="input" type="password" id="password" placeholder="Sua senha"/>
+                <div class="error" id="PasswordRequiredError">É necessário uma senha</div>
+            </div>
+
+            <div>
+                <button class="button" type="submit" id="submit" disabled="true">Cadastrar</button>
+            </div>
+        </form>
     </section>
+
+    <script src="script.js"></script>
 </body>
 </html>
