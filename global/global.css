@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -17,15 +19,24 @@ time, mark, audio, video {
 	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
+    font-family: "Work Sans", sans-serif;
 }
 
 :root {
+    --beige: #FDECE3;
     --red: #D0342C;
-    --yellow: #FFFF00;
+    --yellow: #F6CB46;
     --black: #000000;
-    --white: #FFFFFF;
+    --white: #FAF5F2;
     --gray: #333;
     --light_gray: #FFF;
+    --pink: #E94E89;
+    --green: #22A095;
+}
+
+
+body {
+    background-color: var(--beige);
 }
 
 .clear {
@@ -76,3 +87,72 @@ time, mark, audio, video {
 .field {
     margin-bottom: 20px;
 }
+
+/*Score*/
+.rating {
+    display: inline-block;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    float: right;
+    cursor: pointer;
+    color: #333;
+}
+
+.rating label:before {
+    content: '\2605';
+    font-size: 40px;
+}
+
+.rating input:checked~label {
+    color: #ffca08;
+}
+/*Score*/
+
+/*Navigation Bar*/
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.nav-logo {
+    display: flex;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 900;
+    font-size: 150%;
+}
+
+.nav-bar a {
+    display: flex;
+    align-items: center;
+}
+
+.nav-bar a img {
+    max-width: 5rem;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    align-items: center;
+    padding-right: 20px;
+    gap: 80px;
+}
+
+.nav-item button {
+    font-family: "Work Sans", sans-serif;
+    font-size: 110%;
+}
+
+.nav-item button:hover {
+    font-weight: 600;
+}
+/*Navigation Bar*/

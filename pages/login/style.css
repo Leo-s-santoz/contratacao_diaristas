@@ -1,6 +1,6 @@
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: var(--yellow);
+    font-family: "Work Sans", sans-serif;
+    background-color: var(--white);
     display: flex;
     justify-content: center;
     align-items: center;

@@ -6,14 +6,12 @@ function checkFormValidity() {
   const email = form.email().value;
   const password = form.password().value;
 
-  // Verificar cada campo e se está de acordo com as validações
   const isNameValid = !!name;
   const isCpfValid = cpf && validateCpf(cpf);
   const isCityValid = !!city;
   const isEmailValid = email && validateEmail(email);
   const isPasswordValid = password && securePassword(password);
 
-  // Se todos os campos estiverem válidos, habilita o botão submit
   form.submit().disabled = !(
     isNameValid &&
     isCpfValid &&
@@ -21,6 +19,8 @@ function checkFormValidity() {
     isEmailValid &&
     isPasswordValid
   );
+
+  alert("Cadastro Realizado com sucesso");
 }
 //submit
 

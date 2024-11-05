@@ -64,7 +64,7 @@ function login() {
 }
 
 function register() {
-  window.location.href = "/pages/register/register.html";
+  window.location.href = "/register";
 }
 
 const form = {

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/global/global.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav-bar">
+            <a href="#" class="nav-logo"><!--<img src="/img/icons/home-icon.jpg">-->tudo em dia</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><button class="clear" id="account-button">Conta</button></li>
+                <li class="nav-item"><button class="clear" id="fav-button">Favoritos</button></li>
+                <li class="nav-item"><button class="clear" id="chats-button">Chats</button></li>
+            </ul>
+        </nav>
+
+        <br>
+        <br>
+
+        <section class="profile-container">
+            <div class="profile-card">
+                
+                <picture class="profile-picture">
+                    <img src="/img/diarista1.png" alt="Foto de perfil">
+                </picture>
+
+                <div class="rating-container">
+                    <div class="rating">
+                        <input type="radio" name="rating" id="star5" value="5">
+                        <label for="star5"></label>
+                        
+                        <input type="radio" name="rating" id="star4" value="4">
+                        <label for="star4"></label>
+
+                        <input type="radio" name="rating" id="star3" value="3">
+                        <label for="star3"></label>
+
+                        <input type="radio" name="rating" id="star2" value="2">
+                        <label for="star2"></label>
+
+                        <input type="radio" name="rating" id="star1" value="1">
+                        <label for="star1"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <h2 class="title" id="name">name</h2>
+                <h2 class="title" id="city">city</h2>
+            </div>
+
+            <div class="contact-button-container">
+                <button class="contact-button" id="contact-button">Entre em contato</button>
+            </div>
+        </section>
+
+        <br>
+        <br>
+
+        <section class="info-container">
+            <h1 class="title">Descrição</h1>
+            <p class="description">Sem descrição</p>
+        </section>
+    </div>
+    <script src="/global/score.js"></script>
+</body>
+</html>
