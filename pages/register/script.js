@@ -1,4 +1,4 @@
-//submit
+// Função para verificar a validade do formulário antes de habilitar o botão de submit
 function checkFormValidity() {
   const name = form.name().value;
   const cpf = form.cpf().value;
@@ -6,12 +6,14 @@ function checkFormValidity() {
   const email = form.email().value;
   const password = form.password().value;
 
+  // Validações de cada campo individualmente
   const isNameValid = !!name;
   const isCpfValid = cpf && validateCpf(cpf);
   const isCityValid = !!city;
   const isEmailValid = email && validateEmail(email);
   const isPasswordValid = password && securePassword(password);
 
+  // Habilita o botão de submit apenas se todos os campos forem válidos
   form.submit().disabled = !(
     isNameValid &&
     isCpfValid &&
@@ -20,10 +22,10 @@ function checkFormValidity() {
     isPasswordValid
   );
 }
-//submit
 
-//buttons
+// Função para desativar o botão de usuário não selecionado e destacar o botão selecionado
 function disableBtn(role) {
+  // Verifica o tipo de usuário selecionado (Diarista ou Contratante)
   if (role === "Diarista") {
     form.buttonCon().style.backgroundColor = "#4C4C4C";
     form.buttonDia().style.backgroundColor = "black";
@@ -32,26 +34,28 @@ function disableBtn(role) {
     form.buttonCon().style.backgroundColor = "black";
   }
 
+  // Exibe o formulário após a seleção do tipo de usuário
   form.form().style.display = "block";
 }
-//buttons;
 
-//name
+// Função para exibir ou ocultar o erro de campo obrigatório para o nome
 function toggleNameError() {
   const name = form.name().value;
   form.obrigatoryNameError().style.display = name ? "none" : "block";
   checkFormValidity();
 }
-//name
 
-//cpf
+// Função para validar CPF
 function validateCpf(cpf) {
+  // Remove todos os caracteres não numéricos
   cpf = cpf.replace(/\D/g, "");
 
+  // Verifica se o CPF tem 11 dígitos e não é uma sequência repetida (ex.: 11111111111)
   if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
     return false;
   }
 
+  // Função para calcular o dígito verificador
   function calculateDigit(cpf, factor) {
     let total = 0;
     for (let i = 0; i < factor - 1; i++) {
@@ -61,38 +65,40 @@ function validateCpf(cpf) {
     return remainder === 10 ? 0 : remainder;
   }
 
+  // Calcula os dígitos verificadores
   const digit1 = calculateDigit(cpf, 10);
   const digit2 = calculateDigit(cpf, 11);
 
+  // Retorna verdadeiro se os dígitos calculados correspondem aos dígitos fornecidos no CPF
   return digit1 === parseInt(cpf[9]) && digit2 === parseInt(cpf[10]);
 }
 
+// Função para exibir/ocultar mensagens de erro para o CPF
 function toggleCpfError() {
   const cpf = form.cpf().value;
   form.obrigatoryCpfError().style.display = cpf ? "none" : "block";
   form.invalidCpfError().style.display = validateCpf(cpf) ? "none" : "block";
   checkFormValidity();
 }
-//cpf
 
-//city
+// Função para validar a seleção de cidade
 function validateCity() {
   const city = form.cities().value;
   checkFormValidity();
   return city;
 }
-//city
 
-//Email
+// Função para exibir/ocultar mensagens de erro de campo obrigatório para o email
 function toggleEmailError() {
   const email = form.email().value;
-  (form.emailRequiredError().style.display = email ? "none" : "block"),
-    (form.emailInvalidError().style.display = isEmailValid(email)
-      ? "none"
-      : "block");
+  form.emailRequiredError().style.display = email ? "none" : "block";
+  form.emailInvalidError().style.display = isEmailValid(email)
+    ? "none"
+    : "block";
   checkFormValidity();
 }
 
+// Função para verificar a validade do email
 function isEmailValid() {
   const email = form.email().value;
   if (!email) {
@@ -101,32 +107,33 @@ function isEmailValid() {
   return validateEmail(email);
 }
 
+// Função que usa regex para validar o formato do email
 function validateEmail(email) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(email);
 }
-//Email
 
-//Password
+// Função para exibir/ocultar mensagens de erro de campo obrigatório para senha
 function togglePasswordError() {
   const password = form.password().value;
-  (form.passwordRequiredError().style.display = password ? "none" : "block"),
-    (form.passwordRequirementsError().style.display = securePassword(password)
-      ? "none"
-      : "block");
+  form.passwordRequiredError().style.display = password ? "none" : "block";
+  form.passwordRequirementsError().style.display = securePassword(password)
+    ? "none"
+    : "block";
   checkFormValidity();
 }
 
+// Função para validar requisitos de segurança da senha
 function securePassword(password) {
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumber = /\d/.test(password);
-  const hasMinLength = password.length >= 6;
+  const hasUpperCase = /[A-Z]/.test(password); // Contém letra maiúscula
+  const hasLowerCase = /[a-z]/.test(password); // Contém letra minúscula
+  const hasNumber = /\d/.test(password); // Contém número
+  const hasMinLength = password.length >= 6; // Tem pelo menos 6 caracteres
 
   return hasUpperCase && hasLowerCase && hasNumber && hasMinLength;
 }
-//Password
 
+// Objeto `form` para mapear os elementos do formulário, facilitando o acesso aos elementos HTML
 const form = {
   form: () => document.getElementById("form"),
   buttonDia: () => document.getElementById("diaristaBtn"),
