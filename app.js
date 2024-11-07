@@ -4,9 +4,14 @@ const path = require("path");
 const PORT = 3036;
 const router = require("./routers");
 const { Server } = require("http");
+const bodyParser = require("body-parser");
 //imports
 
 const app = express();
+
+//config
+//body parser
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //permite que rotas do routers sejam acessadas a partir do "/"
 app.use("/", router);

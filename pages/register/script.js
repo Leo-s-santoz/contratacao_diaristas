@@ -24,6 +24,7 @@ function checkFormValidity() {
 }
 
 // Função para desativar o botão de usuário não selecionado e destacar o botão selecionado
+/*
 function disableBtn(role) {
   // Verifica o tipo de usuário selecionado (Diarista ou Contratante)
   if (role === "Diarista") {
@@ -33,10 +34,8 @@ function disableBtn(role) {
     form.buttonDia().style.backgroundColor = "#4C4C4C";
     form.buttonCon().style.backgroundColor = "black";
   }
-
-  // Exibe o formulário após a seleção do tipo de usuário
-  form.form().style.display = "block";
 }
+*/
 
 // Função para exibir ou ocultar o erro de campo obrigatório para o nome
 function toggleNameError() {

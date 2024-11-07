@@ -15,28 +15,29 @@
             
             <div class="user-type">
                 <label class="label" for="user-type">Quem é você?</label>
-                <div class="selection-buttons">
-                    <div><button class="button" type="button" id="diaristaBtn" onclick="disableBtn('Diarista')">Diarista</button></div>
-                    <div><button class="button" type="button" id="contratanteBtn" onclick="disableBtn('Contratante')">Contratante</button></div>
-                </div>
+                <select name="userType" class="options" name="cities" id="user-type" onchange="validateCity()">
+                    <option value="">Selecione</option>
+                    <option value="Diarista">Diarista</option>
+                    <option value="Contratante">Contratante</option> 
+                </select>
             </div>
 
             <div class="field">
                 <label class="label" for="name">Nome Completo</label>
-                <input type="text" class="input" placeholder="Ex: Maria dos Santos" id="name" onchange="toggleNameError()"/>
+                <input name="name" type="text" class="input" placeholder="Ex: Maria dos Santos" id="name" onchange="toggleNameError()"/>
                 <div class="error" id="obrigatoryNameError">É necessário um Nome</div>
             </div>
 
             <div class="field">
                 <label class="label" for="cpf">CPF</label>
-                <input type="number" class="input" id="cpf" onchange="toggleCpfError(this.value)">
+                <input name="cpf" type="number" class="input" id="cpf" onchange="toggleCpfError(this.value)">
                 <div class="error" id="obrigatoryCpfError">É necessário um cpf</div>
                 <div class="error" id="invalidCpfError">CPF inválido</div>
             </div>
 
             <div class="select field">
                 <label class="label" for="cities">Cidade</label>
-                <select class="options" name="cities" id="cities" onchange="validateCity()">
+                <select name="city" class="options" name="cities" id="cities" onchange="validateCity()">
                     <option value="">Selecione uma cidade</option>
                     <option value="Fraiburgo">Fraiburgo</option>
                     <option value="Videira">Videira</option> 
@@ -45,14 +46,14 @@
 
             <div class="field">
                 <div><label class="label" for="email">email</label></div>
-                <input class="input" type="email" id="email" placeholder="ex: joao@gmail.com" onchange="toggleEmailError()" />
+                <input name="email" class="input" type="email" id="email" placeholder="ex: joao@gmail.com" onchange="toggleEmailError()" />
                 <div class="error" id="emailRequiredError">É necessário um email</div>
                 <div class="error" id="emailInvalidError">Email é inválido</div>
             </div>
             
             <div class="field">
                 <div><label class="label" for="password">senha</label></div>
-                <input class="input" type="password" id="password" placeholder="Sua senha" onchange="togglePasswordError()"/>
+                <input name="password" class="input" type="password" id="password" placeholder="Sua senha" onchange="togglePasswordError()"/>
                 <div class="error" id="passwordRequiredError">É necessário uma senha</div>
                 <div class="error" id="passwordRequirementsError">A senha deve conter letras maiusculas, minusculas, números e ao menos 6 dígitos</div>
             </div>
