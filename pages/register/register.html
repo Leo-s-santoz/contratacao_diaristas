@@ -9,20 +9,18 @@
 
 </head>
 <body>
-    <section class="container">
-        <h1 class="title">Quem é você?</h1>
-
-        <div class="buttons">
-            <div><button class="button" type="button" id="diaristaBtn" onclick="disableBtn('Diarista')">Diarista</button></div>
-
-            <div><button class="button" type="button" id="contratanteBtn" onclick="disableBtn('Contratante')">Contratante</button></div>
-        </div>
-    </section>
-    
     <section class="container form" id="form">
-        <form action="">
+        <form action="/add" method="POST">
             <h1 class="title">Cadastre-se e Acesse</h1>
             
+            <div class="user-type">
+                <label class="label" for="user-type">Quem é você?</label>
+                <div class="selection-buttons">
+                    <div><button class="button" type="button" id="diaristaBtn" onclick="disableBtn('Diarista')">Diarista</button></div>
+                    <div><button class="button" type="button" id="contratanteBtn" onclick="disableBtn('Contratante')">Contratante</button></div>
+                </div>
+            </div>
+
             <div class="field">
                 <label class="label" for="name">Nome Completo</label>
                 <input type="text" class="input" placeholder="Ex: Maria dos Santos" id="name" onchange="toggleNameError()"/>

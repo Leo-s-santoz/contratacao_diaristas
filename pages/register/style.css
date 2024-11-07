@@ -18,7 +18,16 @@ body {
 
 .container.form {
     margin: 1rem;
-    display: none;
+}
+
+.selection-buttons{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.selection-buttons button{
+    width: 12rem;
 }
 
 .select {

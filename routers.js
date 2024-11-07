@@ -12,4 +12,8 @@ router.get("/register", (req, res) => {
   res.redirect("/pages/register/register.html");
 });
 
+router.post("/add", function (req, res) {
+  res.send("formulário recebido");
+});
+
 module.exports = router;

@@ -19,24 +19,22 @@ function checkFormValidity() {
     isEmailValid &&
     isPasswordValid
   );
-
-  alert("Cadastro Realizado com sucesso");
 }
 //submit
 
 //buttons
 function disableBtn(role) {
   if (role === "Diarista") {
-    form.buttonDia().disabled = true;
-    form.buttonCon().disabled = false;
+    form.buttonCon().style.backgroundColor = "#4C4C4C";
+    form.buttonDia().style.backgroundColor = "black";
   } else {
-    form.buttonDia().disabled = false;
-    form.buttonCon().disabled = true;
+    form.buttonDia().style.backgroundColor = "#4C4C4C";
+    form.buttonCon().style.backgroundColor = "black";
   }
 
   form.form().style.display = "block";
 }
-//buttons
+//buttons;
 
 //name
 function toggleNameError() {
