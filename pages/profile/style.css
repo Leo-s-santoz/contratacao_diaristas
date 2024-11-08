@@ -6,7 +6,6 @@
     margin: 6rem 10rem 6rem 10rem;
     padding: 40px;
     border: 4px solid var(--black);
-    border-radius: 40px;
     box-shadow: 8px 8px 0px 0px var(--black);
     background-color: var(--white);
 }
@@ -27,8 +26,8 @@
     object-fit: cover;
     height: 200px;
     width: 200px;
-    border-radius: 50%;
     border: 5px solid var(--black);
+    border-radius: 50%;
 }
 
 .profile-container {
@@ -49,7 +48,6 @@
 .contact-button {
     border: 5px solid var(--black);
     box-shadow: 8px 8px 0 var(--black);
-    border-radius: 30px;
     font-weight: 900;
     font-size: 200%;
     font-family: "Work Sans", sans-serif;
@@ -84,7 +82,6 @@
     max-width: 700px;
     border: 5px solid var(--black);
     box-shadow: 8px 8px 0 var(--black);
-    border-radius: 30px;
     font-weight: 500;
     font-size: 1.5rem;
     font-family: "Work Sans", sans-serif;

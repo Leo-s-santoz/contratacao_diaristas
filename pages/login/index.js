@@ -59,12 +59,36 @@ function validateEmail(email) {
     });
 }*/
 
-function login() {
-  window.location.href = "/pages/home/home.html";
-}
+async function login() {
+  event.preventDefault();
 
-function register() {
-  window.location.href = "/register";
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    // faz uma requisição POST para a rota /login
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }), // wnvia email e senha
+    });
+
+    const result = await response.json();
+
+    // verifica a resposta do backend
+    if (result.success) {
+      // Verificação corrigida
+      alert(result.message);
+      window.location.href = "/pages/home/home.html"; // redireciona o usuario
+    } else {
+      alert(result.message); // alerta de falha no login
+    }
+  } catch (error) {
+    console.error("Erro ao fazer login:", error);
+    alert("Erro ao conectar ao servidor. Tente novamente.");
+  }
 }
 
 const form = {

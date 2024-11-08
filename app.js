@@ -12,6 +12,7 @@ const app = express();
 //config
 //body parser
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 //permite que rotas do routers sejam acessadas a partir do "/"
 app.use("/", router);
