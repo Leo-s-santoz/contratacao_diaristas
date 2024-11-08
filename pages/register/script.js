@@ -1,13 +1,17 @@
 // Função para verificar a validade do formulário antes de habilitar o botão de submit
 function checkFormValidity() {
+  const userType = form.userType().value;
   const name = form.name().value;
+  const phone = form.phone().value;
   const cpf = form.cpf().value;
   const city = form.cities().value;
   const email = form.email().value;
   const password = form.password().value;
 
   // Validações de cada campo individualmente
+  const isUserTypeValid = !!userType;
   const isNameValid = !!name;
+  const isPhoneValid = !!phone && validatePhone(phone);
   const isCpfValid = cpf && validateCpf(cpf);
   const isCityValid = !!city;
   const isEmailValid = email && validateEmail(email);
@@ -15,7 +19,9 @@ function checkFormValidity() {
 
   // Habilita o botão de submit apenas se todos os campos forem válidos
   form.submit().disabled = !(
+    isUserTypeValid &&
     isNameValid &&
+    isPhoneValid &&
     isCpfValid &&
     isCityValid &&
     isEmailValid &&
@@ -23,25 +29,61 @@ function checkFormValidity() {
   );
 }
 
-// Função para desativar o botão de usuário não selecionado e destacar o botão selecionado
-/*
-function disableBtn(role) {
-  // Verifica o tipo de usuário selecionado (Diarista ou Contratante)
-  if (role === "Diarista") {
-    form.buttonCon().style.backgroundColor = "#4C4C4C";
-    form.buttonDia().style.backgroundColor = "black";
-  } else {
-    form.buttonDia().style.backgroundColor = "#4C4C4C";
-    form.buttonCon().style.backgroundColor = "black";
-  }
-}
-*/
-
 // Função para exibir ou ocultar o erro de campo obrigatório para o nome
 function toggleNameError() {
   const name = form.name().value;
   form.obrigatoryNameError().style.display = name ? "none" : "block";
   checkFormValidity();
+}
+// Função para exibir ou ocultar o erro de campo obrigatório para o celular
+
+function validatePhone(phone) {
+  // Remove espaços, traços e parênteses
+  const cleaned = phone.replace(/\D/g, "");
+
+  // Verifica se o número tem 11 dígitos e começa com o DDD correto
+  const phonePattern = /^[1-9]{2}9[0-9]{8}$/;
+
+  return phonePattern.test(cleaned);
+}
+
+function togglePhoneError() {
+  // Obtém o valor do telefone e formata enquanto o usuário digita
+  const phoneInput = form.phone();
+  formatPhoneNumber(phoneInput); // Chama a função de formatação
+
+  // Realiza as validações de obrigatoriedade e formato
+  const phone = phoneInput.value;
+  form.obrigatoryPhoneError().style.display = phone ? "none" : "block";
+  form.invalidPhoneError().style.display = validatePhone(phone)
+    ? "none"
+    : "block";
+  checkFormValidity();
+}
+
+// Função de formatação (sem alterações)
+function formatPhoneNumber(input) {
+  const phoneNumber = input.value.replace(/\D/g, "");
+
+  if (phoneNumber.length > 11) {
+    phoneNumber = phoneNumber.slice(0, 11);
+  }
+
+  if (phoneNumber.length > 10) {
+    input.value = `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(
+      2,
+      3
+    )} ${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
+  } else if (phoneNumber.length > 6) {
+    input.value = `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(
+      2,
+      3
+    )} ${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7)}`;
+  } else if (phoneNumber.length > 2) {
+    input.value = `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
+  } else {
+    input.value = phoneNumber;
+  }
 }
 
 // Função para validar CPF
@@ -91,7 +133,7 @@ function validateCity() {
 function toggleEmailError() {
   const email = form.email().value;
   form.emailRequiredError().style.display = email ? "none" : "block";
-  form.emailInvalidError().style.display = isEmailValid(email)
+  form.emailInvalidError().style.display = validateEmail(email)
     ? "none"
     : "block";
   checkFormValidity();
@@ -135,11 +177,13 @@ function securePassword(password) {
 // Objeto `form` para mapear os elementos do formulário, facilitando o acesso aos elementos HTML
 const form = {
   form: () => document.getElementById("form"),
-  buttonDia: () => document.getElementById("diaristaBtn"),
-  buttonCon: () => document.getElementById("contratanteBtn"),
+  userType: () => document.getElementById("userType"),
   name: () => document.getElementById("name"),
   obrigatoryNameError: () => document.getElementById("obrigatoryNameError"),
   cpf: () => document.getElementById("cpf"),
+  phone: () => document.getElementById("phone"),
+  obrigatoryPhoneError: () => document.getElementById("obrigatoryPhoneError"),
+  invalidPhoneError: () => document.getElementById("invalidPhoneError"),
   obrigatoryCpfError: () => document.getElementById("obrigatoryCpfError"),
   invalidCpfError: () => document.getElementById("invalidCpfError"),
   cities: () => document.getElementById("cities"),

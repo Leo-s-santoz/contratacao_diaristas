@@ -10,12 +10,12 @@
 </head>
 <body>
     <section class="container form" id="form">
-        <form action="/register" method="POST">
+        <form action="/add" method="POST">
             <h1 class="title">Cadastre-se e Acesse</h1>
             
             <div class="user-type">
                 <label class="label" for="user-type">Quem é você?</label>
-                <select name="userType" class="options" name="cities" id="user-type" onchange="validateCity()">
+                <select name="userType" class="options" name="cities" id="userType">
                     <option value="">Selecione</option>
                     <option value="Diarista">Diarista</option>
                     <option value="Contratante">Contratante</option> 
@@ -26,6 +26,13 @@
                 <label class="label" for="name">Nome Completo</label>
                 <input name="name" type="text" class="input" placeholder="Ex: Maria dos Santos" id="name" onchange="toggleNameError()"/>
                 <div class="error" id="obrigatoryNameError">É necessário um Nome</div>
+            </div>
+
+            <div class="phone-field">
+                <label class="label" for="phone">Celular</label>
+                <input name="phone" type="tel" class="input" placeholder="Ex: 11 9 1111-1111" id="phone" onchange="togglePhoneError()" />
+                <div class="error" id="obrigatoryPhoneError">É necessário um número de celular</div>
+                <div class="error" id="invalidPhoneError">Número inválido</div>
             </div>
 
             <div class="field">
@@ -46,7 +53,7 @@
 
             <div class="field">
                 <div><label class="label" for="email">email</label></div>
-                <input name="email" class="input" type="email" id="email" placeholder="ex: joao@gmail.com" onchange="toggleEmailError()" />
+                <input name="email" class="input" type="email" id="email" placeholder="Ex: joao@gmail.com" onchange="toggleEmailError()" />
                 <div class="error" id="emailRequiredError">É necessário um email</div>
                 <div class="error" id="emailInvalidError">Email é inválido</div>
             </div>

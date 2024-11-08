@@ -24,6 +24,10 @@ body {
     margin-bottom: 20px;
 }
 
+.phone-field{
+    margin-bottom: 20px;
+}
+
 .select {
     display: flex;
     flex-direction: column;
