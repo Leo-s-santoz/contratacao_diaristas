@@ -47,18 +47,6 @@ function validateEmail(email) {
   return emailPattern.test(email);
 }
 
-/*function login() {
-  firebase
-    .auth()
-    .signInWithEmailAndPassword(form.email().value, form.password().value)
-    .then((response) => {
-      console.log("success", response);
-    })
-    .cath((error) => {
-      console.log("error", error);
-    });
-}*/
-
 async function login() {
   event.preventDefault();
 
@@ -79,16 +67,19 @@ async function login() {
 
     // verifica a resposta do backend
     if (result.success) {
-      // Verificação corrigida
-      alert(result.message);
       window.location.href = "/pages/home/home.html"; // redireciona o usuario
     } else {
-      alert(result.message); // alerta de falha no login
+      form.LoginCredentialError().style.display = "block";
     }
   } catch (error) {
     console.error("Erro ao fazer login:", error);
-    alert("Erro ao conectar ao servidor. Tente novamente.");
   }
+
+  //exibir mensagem de erro
+}
+
+function register() {
+  window.location.href = "/pages/register/register.html";
 }
 
 const form = {
@@ -97,6 +88,7 @@ const form = {
   EmailRequiredError: () => document.getElementById("EmailRequiredError"),
   EmailInvalidError: () => document.getElementById("EmailInvalidError"),
   PasswordRequiredError: () => document.getElementById("PasswordRequiredError"),
+  LoginCredentialError: () => document.getElementById("LoginCredentialError"),
   RecoverPasswordButton: () => document.getElementById("RecoverPasswordButton"),
   LoginButton: () => document.getElementById("LoginButton"),
 };

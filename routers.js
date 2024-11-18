@@ -1,20 +1,23 @@
 //imports
+const { Sequelize } = require("sequelize");
 const express = require("express");
 const path = require("path");
 const router = express.Router();
 const User = require("./models/user");
 const bcrypt = require("bcrypt");
 const { hash } = require("crypto");
-//imports
+const jwt = require("jsonwebtoken");
+const authenticateToken = require("./middleware/auth");
 
 //config
+require("dotenv").config();
 //permite uso do metodo POST
 router.use(express.urlencoded({ extended: true }));
 //bcrypt
 const saltRounds = 10;
 
 //rotas
-router.post("/login", async (req, res) => {
+router.post("/login", authenticateToken, async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -23,17 +26,27 @@ router.post("/login", async (req, res) => {
       return res.json({ message: "Email e senha são obrigatórios." });
     }
     //tentar achar user pelo email
-    const usuario = await User.findOne({ where: { email } });
-    if (!usuario) {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
       return res.json({ message: "Usuário não encontrado" });
     }
     //verificar senha
-    const storedPassword = usuario.password;
+    const storedPassword = user.password;
 
     const rightPassword = await bcrypt.compare(password, storedPassword);
 
     if (rightPassword) {
-      return res.json({ success: true, message: "Login bem-sucedido" });
+      // Seleciona apenas as informações do usuário
+      const payload = { id: user.id, email: user.email, name: user.name };
+
+      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+      console.log(accessToken);
+
+      return res.json({
+        success: true,
+        message: "Login bem-sucedido",
+        accessToken: accessToken,
+      });
     } else {
       return res.json({ success: false, message: "Senha incorreta" });
     }
@@ -68,6 +81,7 @@ router.get("/register", (req, res) => {
   res.redirect("/pages/register/register.html");
 });
 
+//cadastro
 router.post("/add", async (req, res) => {
   try {
     const { userType, name, phone, cpf, city, email, password } = req.body;

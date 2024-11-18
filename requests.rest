@@ -1,0 +1,8 @@
+POST http://localhost:3036/login
+Authorization: Bearer .eyJpZCI6MiwiZW1haWwiOiJ0ZXN0ZUBnbWFpbC5jb20iLCJuYW1lIjoidGVzdGUiLCJpYXQiOjE3MzE5NjMzNjd9.9Gjj5QgiF2Hdnr7WWYWvyWrVhUr9vqp8rfqbFZw6j4o
+Content-Type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "Teste123"
+}
