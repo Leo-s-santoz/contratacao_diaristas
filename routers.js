@@ -7,7 +7,11 @@ const User = require("./models/user");
 const bcrypt = require("bcrypt");
 const { hash } = require("crypto");
 const jwt = require("jsonwebtoken");
-const authenticateToken = require("./middleware/auth");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  authenticateToken,
+} = require("./middleware/tokens");
 
 //config
 require("dotenv").config();
@@ -17,7 +21,11 @@ router.use(express.urlencoded({ extended: true }));
 const saltRounds = 10;
 
 //rotas
-router.post("/login", authenticateToken, async (req, res) => {
+
+//login
+let refreshTokens = [];
+
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -37,15 +45,23 @@ router.post("/login", authenticateToken, async (req, res) => {
 
     if (rightPassword) {
       // Seleciona apenas as informações do usuário
-      const payload = { id: user.id, email: user.email, name: user.name };
+      const payload = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        userType: user.userType,
+      };
 
-      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
-      console.log(accessToken);
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+
+      refreshTokens.push(refreshToken);
 
       return res.json({
         success: true,
         message: "Login bem-sucedido",
         accessToken: accessToken,
+        refreshToken: refreshToken,
       });
     } else {
       return res.json({ success: false, message: "Senha incorreta" });
@@ -77,6 +93,26 @@ router.post("/login", authenticateToken, async (req, res) => {
   }
 });
 
+//renovação de tokens
+router.post("/token", (req, res) => {
+  const refreshToken = req.body.token;
+  if (!refreshToken) return res.sendStatus(401);
+  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    const accessToken = generateAccessToken({ name: user.name });
+    res.json({ accessToken: accessToken });
+  });
+});
+
+//loggout revogação de tokens
+router.delete("/logout", (req, res) => {
+  const refreshToken = req.body.token;
+  refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+  res.sendStatus(204);
+});
+
+//
 router.get("/register", (req, res) => {
   res.redirect("/pages/register/register.html");
 });
@@ -118,6 +154,11 @@ router.post("/add", async (req, res) => {
       error: error.message, // Include the error message in the response
     });
   }
+});
+
+//rota de teste
+router.get("/protected", authenticateToken, (req, res) => {
+  res.json({ message: "Acesso permitido", user: req.user });
 });
 
 module.exports = router;

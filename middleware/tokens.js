@@ -1,5 +1,18 @@
 const jwt = require("jsonwebtoken");
 
+//gerar tokens de acesso, payload contem as informações do usuário
+function generateAccessToken(payload) {
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "30s",
+  });
+}
+
+function generateRefreshToken(payload) {
+  return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
+}
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
 
@@ -23,4 +36,8 @@ function authenticateToken(req, res, next) {
   });
 }
 
-module.exports = authenticateToken;
+module.exports = {
+  generateAccessToken,
+  generateRefreshToken,
+  authenticateToken,
+};
