@@ -49,6 +49,7 @@ router.post("/login", async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        city: user.city,
         userType: user.userType,
       };
 
@@ -159,6 +160,20 @@ router.post("/add", async (req, res) => {
 //rota de teste
 router.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Acesso permitido", user: req.user });
+});
+
+//recupera informações do usuario
+router.get("/account", authenticateToken, (req, res) => {
+  const { id, name, city } = req.user;
+
+  res.json({
+    success: true,
+    data: {
+      id,
+      name,
+      city,
+    },
+  });
 });
 
 module.exports = router;

@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
+  const accessToken = sessionStorage.getItem("accessToken");
 
-  if (token) {
-    fetch("http://localhost:3000/profile", {
+  if (accessToken) {
+    fetch("/account", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
       .then((response) => {
@@ -15,17 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Usuário:", data.name); // Nome do usuário
-        console.log("Cidade:", data.city); // Cidade do usuário
-        console.log("Tipo:", data.type); // Tipo do usuário
+        console.log("Usuário:", data.name);
+        console.log("Cidade:", data.city);
+        console.log("Tipo:", data.type);
 
-        // Exibe as informações na página conforme necessário
-        document.getElementById("username").innerText = data.name;
-        document.getElementById("userCity").innerText = data.city;
-        document.getElementById("userType").innerText = data.type;
+        document.getElementById("name").innerText = data.name;
+        document.getElementById("city").innerText = data.city;
+        //document.getElementById("userType").innerText = data.type;
       })
       .catch((error) => {
-        console.error("Erro:", error);
+        console.error("Erro: ", error);
       });
   } else {
     console.log("Token não encontrado. Usuário não está logado.");

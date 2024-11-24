@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 //gerar tokens de acesso, payload contem as informações do usuário
 function generateAccessToken(payload) {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "30s",
+    expiresIn: "1d",
   });
 }
 
@@ -31,8 +31,8 @@ function authenticateToken(req, res, next) {
       return res.status(403).json({ message: "Invalid token" });
     }
 
-    req.user = user; // Passa o usuário decodificado para o próxima /rota
-    next();
+    req.user = user;
+    next(); // Passa o usuário decodificado para o próxima /rota
   });
 }
 

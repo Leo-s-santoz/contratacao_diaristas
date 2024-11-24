@@ -67,6 +67,8 @@ async function login() {
 
     // verifica a resposta do backend
     if (result.success) {
+      sessionStorage.setItem("accessToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
       window.location.href = "/pages/home/home.html"; // redireciona o usuario
     } else {
       form.LoginCredentialError().style.display = "block";
@@ -74,8 +76,6 @@ async function login() {
   } catch (error) {
     console.error("Erro ao fazer login:", error);
   }
-
-  //exibir mensagem de erro
 }
 
 function register() {

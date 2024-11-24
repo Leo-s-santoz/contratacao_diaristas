@@ -29,3 +29,7 @@ Content-Type: application/json
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0ZUBnbWFpbC5jb20iLCJuYW1lIjoidGVzdGUiLCJ1c2VyVHlwZSI6IkRpYXJpc3RhIiwiaWF0IjoxNzMyMjE4MTEwLCJleHAiOjE3MzI4MjI5MTB9.DvPnriReunm4JpqYuYIf3AgcXcIuVc25_8w91CMY9KE"
 }
+
+###
+GET http://localhost:3036/account
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0ZUBnbWFpbC5jb20iLCJuYW1lIjoidGVzdGUiLCJ1c2VyVHlwZSI6IkRpYXJpc3RhIiwiaWF0IjoxNzMyMzEwOTA3LCJleHAiOjE3MzIzOTczMDd9.OXr1kO---MOOrTpwZtRpZTx7g93wM7cf5CwTg_iLYlw
