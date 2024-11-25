@@ -163,16 +163,18 @@ router.get("/protected", authenticateToken, (req, res) => {
 });
 
 //recupera informações do usuario
-router.get("/account", authenticateToken, (req, res) => {
-  const { id, name, city } = req.user;
+router.get("/info", authenticateToken, (req, res) => {
+  const { userType, name, phone, cpf, city, email, id } = req.user;
 
   res.json({
     success: true,
-    data: {
-      id,
-      name,
-      city,
-    },
+    userType,
+    name,
+    phone,
+    cpf,
+    city,
+    email,
+    id,
   });
 });
 

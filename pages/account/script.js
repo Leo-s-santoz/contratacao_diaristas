@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const accessToken = sessionStorage.getItem("accessToken");
 
   if (accessToken) {
-    fetch("/account", {
+    fetch("/info", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -15,10 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Usuário:", data.name);
-        console.log("Cidade:", data.city);
-        console.log("Tipo:", data.type);
-
         document.getElementById("name").innerText = data.name;
         document.getElementById("city").innerText = data.city;
         //document.getElementById("userType").innerText = data.type;
