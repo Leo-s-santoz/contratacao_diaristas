@@ -44,6 +44,7 @@ body {
     border: none;
     background: transparent;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .clear[disabled]{

@@ -10,11 +10,11 @@
 <body>
     <div class="container">
         <nav class="nav-bar">
-            <a href="#" class="nav-logo"><!--<img src="/img/icons/home-icon.jpg">-->tudo em dia</a>
+            <a href="/pages/home/home.html" class="nav-logo">tudo em dia</a>
             <ul class="nav-menu">
-                <li class="nav-item"><button class="clear" id="account-button">Conta</button></li>
-                <li class="nav-item"><button class="clear" id="fav-button">Favoritos</button></li>
-                <li class="nav-item"><button class="clear" id="chats-button">Chats</button></li>
+                <li class="nav-item"><a href="/pages/account/account.html" class="clear" id="account-button">Conta</a></li>
+                <li class="nav-item"><a href="#" class="clear" id="fav-button">Favoritos</a></li>
+                <li class="nav-item"><a href="#" class="clear" id="chats-button">Chats</a></li>
             </ul>
         </nav>
 
@@ -23,9 +23,16 @@
 
         <section class="profile-container">
             <div class="profile-card">
-                <picture class="profile-picture">
-                    <img src="" alt="Foto de perfil">
+                <picture class="picture-container">
+                    <div class="image-wrapper">
+                        <img class="profile-picture" id="profilePicture" src="/img/icons/profile-placeholder.jpg" alt="Foto de perfil" onclick="openFileInput()">
+                        <span class="hover-text">Atualizar Foto</span>
+                    </div>
+                    <form id="profile-picture-form">
+                        <input type="file" id="profilePictureInput" name="image" accept="image/*" required hidden>
+                    </form>
                 </picture>
+                
             </div>
 
             <div class="profile-details">

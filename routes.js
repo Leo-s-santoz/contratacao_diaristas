@@ -12,6 +12,7 @@ const {
   generateRefreshToken,
   authenticateToken,
 } = require("./middleware/tokens");
+const { upload } = require("./middleware/cloudnary");
 
 //config
 require("dotenv").config();
@@ -164,7 +165,8 @@ router.get("/protected", authenticateToken, (req, res) => {
 
 //recupera informações do usuario
 router.get("/info", authenticateToken, (req, res) => {
-  const { userType, name, phone, cpf, city, email, id } = req.user;
+  const { userType, name, phone, cpf, city, email, profilePicture, id } =
+    req.user;
 
   res.json({
     success: true,
@@ -174,8 +176,27 @@ router.get("/info", authenticateToken, (req, res) => {
     cpf,
     city,
     email,
+    profilePicture,
     id,
   });
 });
+
+//envio de fotos para o bd em formato em formato de URL
+router.post(
+  "/upload-profile-picture",
+  authenticateToken,
+  upload.single("image"),
+  (req, res) => {
+    //disponibilia a url em req.file.path
+    const imageUrl = req.file.path;
+
+    // Atualize o perfil do usuário no bd com a URL da imagem
+    User.update({ profilePicture: imageUrl }, { where: { id: req.user.id } })
+      .then(() => res.json({ success: true, imageUrl }))
+      .catch((err) =>
+        res.status(500).json({ success: false, message: err.message })
+      );
+  }
+);
 
 module.exports = router;

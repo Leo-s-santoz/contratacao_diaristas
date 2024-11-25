@@ -41,6 +41,11 @@ const User = sequelize.define(
       allowNull: false,
       field: "senha",
     },
+    profilePicture: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: "foto_perfil",
+    },
   },
   {
     tableName: "usuarios", // Nome da tabela no banco de dados

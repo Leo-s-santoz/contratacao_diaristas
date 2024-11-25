@@ -2,7 +2,7 @@
 const express = require("express");
 const path = require("path");
 const PORT = 3036;
-const router = require("./routers");
+const router = require("./routes");
 const { Server } = require("http");
 const bodyParser = require("body-parser");
 //imports
