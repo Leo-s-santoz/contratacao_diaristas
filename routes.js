@@ -4,6 +4,7 @@ const express = require("express");
 const path = require("path");
 const router = express.Router();
 const User = require("./models/user");
+const Diarista = require("./models/diarista");
 const bcrypt = require("bcrypt");
 const { hash } = require("crypto");
 const jwt = require("jsonwebtoken");
@@ -47,11 +48,13 @@ router.post("/login", async (req, res) => {
     if (rightPassword) {
       // Seleciona apenas as informações do usuário
       const payload = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        city: user.city,
         userType: user.userType,
+        name: user.name,
+        phone: user.phone,
+        city: user.city,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        id: user.id,
       };
 
       const accessToken = generateAccessToken(payload);
@@ -182,6 +185,7 @@ router.get("/info", authenticateToken, (req, res) => {
 });
 
 //envio de fotos para o bd em formato em formato de URL
+//LEMBRETE: add corte de imagem para formato 500x500
 router.post(
   "/upload-profile-picture",
   authenticateToken,
@@ -198,5 +202,26 @@ router.post(
       );
   }
 );
+
+//recuperar descrução no bd
+router.get("/diarista", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const diarista = await Diarista.findOne({ where: { id_usuario: userId } });
+
+    if (!diarista) {
+      return res.status(404).json({ error: "Diarista não encontrada" });
+    }
+
+    res.json({
+      success: true,
+      description: diarista.description,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar diarista:", error);
+    res.status(500).json({ error: "Erro no servidor" });
+  }
+});
 
 module.exports = router;

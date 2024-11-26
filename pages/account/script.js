@@ -1,3 +1,6 @@
+const profilePicture = document.getElementById("profilePicture");
+const fileInput = document.getElementById("profilePictureInput");
+
 document.addEventListener("DOMContentLoaded", () => {
   const accessToken = sessionStorage.getItem("accessToken");
 
@@ -17,7 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((data) => {
         document.getElementById("name").innerText = data.name;
         document.getElementById("city").innerText = data.city;
-        //document.getElementById("userType").innerText = data.type;
+        if (data.profilePicture) {
+          profilePicture.src = data.profilePicture;
+        } else {
+          profilePicture.src = "/img/icons/profile-placeholder.jpg";
+        }
       })
       .catch((error) => {
         console.error("Erro: ", error);
@@ -27,16 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-const profilePicture = document.getElementById("profilePicture");
-const fileInput = document.getElementById("profilePictureInput");
-
 function openFileInput() {
   fileInput.click();
 }
 
 fileInput.addEventListener("change", handleFileSelect);
 
-function handleFileSelect(event) {
+function handleFileSelect() {
   const file = fileInput.files[0];
 
   if (!file) {

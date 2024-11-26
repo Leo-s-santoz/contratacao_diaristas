@@ -25,7 +25,13 @@
             <div class="profile-card">
                 
                 <picture class="profile-picture">
-                    <img src="" alt="Foto de perfil">
+                    <div class="image-wrapper">
+                        <img class="profile-picture" id="profilePicture" src="" alt="Foto de perfil" onclick="openFileInput()">
+                        <span class="hover-text">Atualizar Foto</span>
+                    </div>
+                    <form id="profile-picture-form">
+                        <input type="file" id="profilePictureInput" name="image" accept="image/*" required hidden>
+                    </form>
                 </picture>
 
                 <div class="rating-container">
@@ -63,9 +69,10 @@
 
         <section class="info-container">
             <h1 class="title">Descrição</h1>
-            <p class="description">Sem descrição</p>
+            <p class="description" id="description">Sem descrição</p>
         </section>
     </div>
+    <script src="script.js"></script>
     <script src="/global/score.js"></script>
 </body>
 </html>
