@@ -6,8 +6,13 @@ const User = require("./user");
 const Diarista = sequelize.define(
   "Diarista",
   {
+    id_usuario: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "id_usuario",
+    },
+
     description: {
-      // Nome no modelo
       type: DataTypes.TEXT,
       allowNull: false,
       field: "descricao",

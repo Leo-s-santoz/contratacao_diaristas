@@ -69,7 +69,12 @@
 
         <section class="info-container">
             <h1 class="title">Descrição</h1>
-            <p class="description" id="description">Sem descrição</p>
+            <div>
+                <p class="description" id="description">Sem descrição</p>
+                <textarea id="description-input" class="hidden"></textarea>
+                <button class="button" id="edit-description-button" onclick="alterDescription()">Editar Descrição</button>
+                <button class="button hidden" id="save-description-button" onclick="saveDescription()">Salvar</button>
+            </div>
         </section>
     </div>
     <script src="script.js"></script>

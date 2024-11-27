@@ -69,6 +69,11 @@ async function login() {
     if (result.success) {
       sessionStorage.setItem("accessToken", result.accessToken);
       localStorage.setItem("refreshToken", result.refreshToken);
+
+      if (result.userType == "Diarista") {
+        window.location.href = "/pages/profile/profile.html";
+        return;
+      }
       window.location.href = "/pages/home/home.html"; // redireciona o usuario
     } else {
       form.LoginCredentialError().style.display = "block";

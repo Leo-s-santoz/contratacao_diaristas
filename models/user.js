@@ -43,7 +43,7 @@ const User = sequelize.define(
     },
     profilePicture: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       field: "foto_perfil",
     },
   },

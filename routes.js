@@ -8,6 +8,7 @@ const Diarista = require("./models/diarista");
 const bcrypt = require("bcrypt");
 const { hash } = require("crypto");
 const jwt = require("jsonwebtoken");
+const { authDiarista } = require("./middleware/authDiarista");
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -65,6 +66,7 @@ router.post("/login", async (req, res) => {
       return res.json({
         success: true,
         message: "Login bem-sucedido",
+        userType: user.userType,
         accessToken: accessToken,
         refreshToken: refreshToken,
       });
@@ -148,10 +150,7 @@ router.post("/add", async (req, res) => {
       password: hashedPassword,
     });
 
-    // Responds with success
-    res
-      .status(201)
-      .json({ message: "Usuário registrado com sucesso!", User: newUser });
+    res.redirect("/pages/login/index.html");
   } catch (error) {
     console.error("Erro ao registrar o usuário:", error); // Log the error
     res.status(500).json({
@@ -194,7 +193,7 @@ router.post(
     //disponibilia a url em req.file.path
     const imageUrl = req.file.path;
 
-    // Atualize o perfil do usuário no bd com a URL da imagem
+    // Atualiza o perfil do usuário no bd com a URL da imagem
     User.update({ profilePicture: imageUrl }, { where: { id: req.user.id } })
       .then(() => res.json({ success: true, imageUrl }))
       .catch((err) =>
@@ -221,6 +220,71 @@ router.get("/diarista", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar diarista:", error);
     res.status(500).json({ error: "Erro no servidor" });
+  }
+});
+
+//alterar informações de diarista
+router.post(
+  "/update-information",
+  authenticateToken,
+  authDiarista,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { description } = req.body;
+
+      if (!description) {
+        return res.status(400).json({ error: "Descrição não fornecida." });
+      }
+
+      const diarista = await Diarista.update(
+        { description },
+        { where: { id_usuario: userId } }
+      );
+
+      if (diarista[0] === 0) {
+        return res.status(404).json({ error: "Diarista não encontrada." });
+      }
+
+      return res.json({
+        success: true,
+        message: "Perfil atualizado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error.message);
+      return res
+        .status(500)
+        .json({ success: false, message: "Erro ao atualizar perfil." });
+    }
+  }
+);
+
+//listar diaristas
+router.get("/list-diaristas", authenticateToken, async (req, res) => {
+  try {
+    const { city } = req.user;
+
+    const diaristas = await User.findAll({
+      where: {
+        userType: "diarista",
+        city: city,
+      },
+      attributes: ["id", "name"],
+    });
+
+    if (diaristas.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Nenhum diarista encontrado na sua cidade." });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: diaristas,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar diaristas:", error);
+    res.status(500).json({ message: "Erro ao buscar diaristas." });
   }
 });
 

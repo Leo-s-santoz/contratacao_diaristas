@@ -1,5 +1,9 @@
 const profilePicture = document.getElementById("profilePicture");
 const fileInput = document.getElementById("profilePictureInput");
+const description = document.getElementById("description");
+const descriptionInput = document.getElementById("description-input");
+const editButton = document.getElementById("edit-description-button");
+const saveButton = document.getElementById("save-description-button");
 
 document.addEventListener("DOMContentLoaded", () => {
   informationSearch();
@@ -120,6 +124,59 @@ async function descriptionSearch() {
     const errorElement = document.getElementById("error-message"); // Certifique-se de ter um elemento com esse ID
     if (errorElement) {
       errorElement.textContent = error.message;
+    }
+  }
+}
+
+function alterDescription() {
+  // Mostra o campo de edição e o botão de salvar
+  descriptionInput.value = description.textContent;
+  description.classList.add("hidden");
+  descriptionInput.classList.remove("hidden");
+  editButton.classList.add("hidden");
+  saveButton.classList.remove("hidden");
+}
+
+function saveDescription() {
+  // Salva o novo texto e restaura a exibição
+  description.textContent = descriptionInput.value;
+  description.classList.remove("hidden");
+  descriptionInput.classList.add("hidden");
+  editButton.classList.remove("hidden");
+  saveButton.classList.add("hidden");
+
+  updateDescription(description.textContent);
+}
+
+async function updateDescription(description) {
+  try {
+    const accessToken = sessionStorage.getItem("accessToken");
+
+    if (!accessToken) {
+      return;
+    }
+
+    const response = await fetch("/update-information", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ description }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log("Descrição atualizada com sucesso:", data.message);
+    } else {
+      console.warn("A atualização falhou:", data.message);
+    }
+  } catch (error) {
+    if (error.message.includes("Failed to update")) {
+      console.error("Server-side error:", error.message);
+    } else {
+      console.error("Unexpected error:", error.message);
     }
   }
 }

@@ -111,6 +111,13 @@
     margin: 0 auto;
 }
 
+.info-container div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .description {
     width: 100%;
     max-width: 700px;
@@ -120,9 +127,15 @@
     font-size: 1.5rem;
     font-family: "Work Sans", sans-serif;
     padding: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
     background-color: var(--white);
     text-align: center;
     word-wrap: break-word;
     overflow-wrap: break-word;
     white-space: normal;
+}
+
+.hidden {
+    display: none;
 }
