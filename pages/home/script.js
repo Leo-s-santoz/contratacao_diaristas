@@ -30,10 +30,10 @@ async function listDiaristas() {
         diaristasList.forEach((diarista) => {
           const listItem = document.createElement("li");
           listItem.innerHTML = `
-              <a href="/perfil-diarista.html?id=${diarista.id}">
-                <h3>${diarista.name}</h3>
-              </a>
-            `;
+            <a href="/profile/profile.html?id=${diarista.id}">
+              <h3>${diarista.name}</h3>
+            </a>
+          `;
           listContainer.appendChild(listItem);
         });
       } else {

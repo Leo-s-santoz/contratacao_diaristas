@@ -23,7 +23,7 @@ router.use(express.urlencoded({ extended: true }));
 //bcrypt
 const saltRounds = 10;
 
-//rotas
+//ROTAS
 
 //login
 let refreshTokens = [];
@@ -32,16 +32,13 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // verificar se campos estão preenchidos
     if (!email || !password) {
       return res.json({ message: "Email e senha são obrigatórios." });
     }
-    //tentar achar user pelo email
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.json({ message: "Usuário não encontrado" });
     }
-    //verificar senha
     const storedPassword = user.password;
 
     const rightPassword = await bcrypt.compare(password, storedPassword);
@@ -119,11 +116,6 @@ router.delete("/logout", (req, res) => {
   res.sendStatus(204);
 });
 
-//
-router.get("/register", (req, res) => {
-  res.redirect("/pages/register/register.html");
-});
-
 //cadastro
 router.post("/add", async (req, res) => {
   try {
@@ -166,21 +158,36 @@ router.get("/protected", authenticateToken, (req, res) => {
 });
 
 //recupera informações do usuario
-router.get("/info", authenticateToken, (req, res) => {
-  const { userType, name, phone, cpf, city, email, profilePicture, id } =
-    req.user;
+router.get("/info/:id", authenticateToken, async (req, res) => {
+  const userId = req.params.id; // Captura o ID passado na URL
 
-  res.json({
-    success: true,
-    userType,
-    name,
-    phone,
-    cpf,
-    city,
-    email,
-    profilePicture,
-    id,
-  });
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: [
+        "id",
+        "userType",
+        "name",
+        "phone",
+        "city",
+        "email",
+        "profilePicture",
+      ],
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuário não encontrado" });
+    }
+
+    res.json({
+      success: true,
+      user: user.toJSON(),
+    });
+  } catch (error) {
+    console.error("Erro ao buscar informações do usuário:", error);
+    res.status(500).json({ success: false, message: "Erro no servidor" });
+  }
 });
 
 //envio de fotos para o bd em formato em formato de URL
@@ -203,9 +210,9 @@ router.post(
 );
 
 //recuperar descrução no bd
-router.get("/diarista", authenticateToken, async (req, res) => {
+router.get("/description/:id", authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.params.id;
 
     const diarista = await Diarista.findOne({ where: { id_usuario: userId } });
 
