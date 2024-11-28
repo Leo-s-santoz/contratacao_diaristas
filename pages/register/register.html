@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>register</title>
     <link rel="stylesheet" href="/global/global.css">
-    <link rel="stylesheet" href="./style.css">
+    <!--<link rel="stylesheet" href="style.css">-->
 
 </head>
 <body>
@@ -15,11 +15,16 @@
             
             <div class="user-type">
                 <label class="label" for="user-type">Quem é você?</label>
-                <select name="userType" class="options" name="cities" id="userType">
+                <select name="userType" class="options" name="cities" id="userType" onchange="addDescription()">
                     <option value="">Selecione</option>
                     <option value="Diarista">Diarista</option>
                     <option value="Contratante">Contratante</option> 
                 </select>
+            </div>
+
+            <div>
+                <textarea name="description" id="descriptionInput" class="text-box hidden" placeholder="Clique aqui e diga  os serviços você pretende oferecer!" onchange="toggleDescriptionError()"></textarea>
+                <div class="error" id="obrigatoryDescriptionError">Uma descrição é obrigatória para diaristas</div>
             </div>
 
             <div class="field">
@@ -28,7 +33,7 @@
                 <div class="error" id="obrigatoryNameError">É necessário um Nome</div>
             </div>
 
-            <div class="phone-field">
+            <div class="field">
                 <label class="label" for="phone">Celular</label>
                 <input name="phone" type="tel" class="input" placeholder="Ex: 11 9 1111-1111" id="phone" onchange="togglePhoneError()" />
                 <div class="error" id="obrigatoryPhoneError">É necessário um número de celular</div>

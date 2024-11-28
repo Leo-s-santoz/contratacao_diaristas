@@ -5,6 +5,7 @@ const path = require("path");
 const router = express.Router();
 const User = require("./models/user");
 const Diarista = require("./models/diarista");
+const Contratante = require("./models/contratante");
 const bcrypt = require("bcrypt");
 const { hash } = require("crypto");
 const jwt = require("jsonwebtoken");
@@ -118,20 +119,26 @@ router.delete("/logout", (req, res) => {
 
 //cadastro
 router.post("/add", async (req, res) => {
-  try {
-    const { userType, name, phone, cpf, city, email, password } = req.body;
+  console.log(req.body);
 
-    // validação dos dados
+  try {
+    const { userType, name, phone, cpf, city, email, password, description } =
+      req.body;
+
     if (!userType || !name || !phone || !cpf || !city || !email || !password) {
       return res
         .status(400)
         .json({ message: "Todos os campos são obrigatórios." });
     }
 
-    //hash de senha
+    if (userType == "Diarista" && !description) {
+      return res
+        .status(400)
+        .json({ message: "Descrição é obrigatória para diaristas." });
+    }
+
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // inserção de dados
     const newUser = await User.create({
       cpf,
       userType,
@@ -142,12 +149,21 @@ router.post("/add", async (req, res) => {
       password: hashedPassword,
     });
 
+    if (userType == "Diarista") {
+      await Diarista.create({
+        id_usuario: newUser.id, // Usa o ID gerado do usuário
+        description,
+      });
+    } else if (userType == "Contratante")
+      await Contratante.create({
+        id_usuario: newUser.id,
+      });
     res.redirect("/pages/login/index.html");
   } catch (error) {
-    console.error("Erro ao registrar o usuário:", error); // Log the error
+    console.error("Erro ao registrar o usuário:", error); // Log do erro
     res.status(500).json({
       message: "Erro ao registrar o usuário",
-      error: error.message, // Include the error message in the response
+      error: error.message, // Inclui a mensagem de erro na resposta
     });
   }
 });
@@ -157,9 +173,9 @@ router.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Acesso permitido", user: req.user });
 });
 
-//recupera informações do usuario
+//recupera informações pelo id da url
 router.get("/info/:id", authenticateToken, async (req, res) => {
-  const userId = req.params.id; // Captura o ID passado na URL
+  const userId = req.params.id;
 
   try {
     const user = await User.findByPk(userId, {
@@ -180,10 +196,29 @@ router.get("/info/:id", authenticateToken, async (req, res) => {
         .json({ success: false, message: "Usuário não encontrado" });
     }
 
-    res.json({
-      success: true,
-      user: user.toJSON(),
+    res.json({ success: true, user: user.toJSON() });
+  } catch (error) {
+    console.error("Erro ao buscar informações do usuário:", error);
+    res.status(500).json({ success: false, message: "Erro no servidor" });
+  }
+});
+
+//buscar informações pelo id do usuário logado
+router.get("/account-info", authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: ["id", "name", "city", "profilePicture"],
     });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuário não encontrado" });
+    }
+
+    res.json({ success: true, user: user.toJSON() });
   } catch (error) {
     console.error("Erro ao buscar informações do usuário:", error);
     res.status(500).json({ success: false, message: "Erro no servidor" });
@@ -222,7 +257,9 @@ router.get("/description/:id", authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      description: diarista.description,
+      description:
+        diarista.description ||
+        "Parece que ainda não foi colocada uma descrição",
     });
   } catch (error) {
     console.error("Erro ao buscar diarista:", error);
@@ -231,40 +268,35 @@ router.get("/description/:id", authenticateToken, async (req, res) => {
 });
 
 //alterar informações de diarista
-router.post(
-  "/update-information",
-  authenticateToken,
-  authDiarista,
-  async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const { description } = req.body;
+router.post("/update-information", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { description } = req.body;
 
-      if (!description) {
-        return res.status(400).json({ error: "Descrição não fornecida." });
-      }
-
-      const diarista = await Diarista.update(
-        { description },
-        { where: { id_usuario: userId } }
-      );
-
-      if (diarista[0] === 0) {
-        return res.status(404).json({ error: "Diarista não encontrada." });
-      }
-
-      return res.json({
-        success: true,
-        message: "Perfil atualizado com sucesso!",
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar perfil:", error.message);
-      return res
-        .status(500)
-        .json({ success: false, message: "Erro ao atualizar perfil." });
+    if (!description) {
+      return res.status(400).json({ error: "Descrição não fornecida." });
     }
+
+    const diarista = await Diarista.update(
+      { description },
+      { where: { id_usuario: userId } }
+    );
+
+    if (diarista[0] === 0) {
+      return res.status(404).json({ error: "Diarista não encontrada." });
+    }
+
+    return res.json({
+      success: true,
+      message: "Perfil atualizado com sucesso!",
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar perfil:", error.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Erro ao atualizar perfil." });
   }
-);
+});
 
 //listar diaristas
 router.get("/list-diaristas", authenticateToken, async (req, res) => {
@@ -276,7 +308,7 @@ router.get("/list-diaristas", authenticateToken, async (req, res) => {
         userType: "diarista",
         city: city,
       },
-      attributes: ["id", "name"],
+      attributes: ["id", "name", "profilePicture"],
     });
 
     if (diaristas.length === 0) {

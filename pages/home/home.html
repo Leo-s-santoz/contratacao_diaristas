@@ -4,37 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <!--<link rel="stylesheet" href="style.css">-->
     <link rel="stylesheet" href="/global/global.css">
 </head>
 <body>
-    <section class="navegação">
-        <div>
-            <nav class="nav-bar">
-                <a href="#" class="nav-logo"><!--<img src="/img/icons/home-icon.jpg">-->tudo em dia</a>
-                <ul class="nav-menu">
-                    <li class="nav-item"><button class="clear" id="account-button">Conta</button></li>
-                    <li class="nav-item"><button class="clear" id="fav-button">Favoritos</button></li>
-                    <li class="nav-item"><button class="clear" id="chats-button">Chats</button></li>
+    <div class="container">
+        <section class="navegação">
+            <div>
+                <nav class="nav-bar">
+                    <a href="/pages/home/home.html" class="nav-logo">tudo em dia</a>
+                    <ul class="nav-menu">
+                        <li class="nav-item"><a href="/pages/account/account.html" class="clear">Conta</a></li>
+                        <li class="nav-item"><a href="/favoritos" class="clear">Favoritos</a></li>
+                        <li class="nav-item"><a href="/chats" class="clear">Chats</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </section>
+
+        <section class="diaristas-grade">
+            <h2>Diaristas Próximas</h2>
+            <div class="grid" id="diaristasGrid">
+                <!-- Perfis de diaristas serão inseridos aqui -->
+                <ul id="diaristas-list" class="diaristas-list">
+                    <!-- Perfis serão adicionados dinamicamente aqui -->
                 </ul>
-            </nav>
-        </div>
-    </section>
-
-    <section class="containerBanner">
-        <h2>entre em contato com diaristas próximas</h2>
-    </section>
-
-    <section class="diaristas-grade">
-        <h2>Diaristas Próximas</h2>
-        <div class="grid" id="diaristasGrid">
-            <!-- Perfis de diaristas serão inseridos aqui -->
-            <ul id="diaristas-list" class="diaristas-list">
-                <!-- Perfis serão adicionados dinamicamente aqui -->
-            </ul>
-        </div>
-    </section>
-
+            </div>
+        </section>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 // Função para verificar a validade do formulário antes de habilitar o botão de submit
 function checkFormValidity() {
   const userType = form.userType().value;
+  const description = form.description().value;
   const name = form.name().value;
   const phone = form.phone().value;
   const cpf = form.cpf().value;
@@ -8,8 +9,8 @@ function checkFormValidity() {
   const email = form.email().value;
   const password = form.password().value;
 
-  // Validações de cada campo individualmente
   const isUserTypeValid = !!userType;
+  const isDescriptionValid = !!description || userType != "Diarista";
   const isNameValid = !!name;
   const isPhoneValid = !!phone && validatePhone(phone);
   const isCpfValid = cpf && validateCpf(cpf);
@@ -17,16 +18,55 @@ function checkFormValidity() {
   const isEmailValid = email && validateEmail(email);
   const isPasswordValid = password && securePassword(password);
 
-  // Habilita o botão de submit apenas se todos os campos forem válidos
-  form.submit().disabled = !(
+  const isFormValid =
     isUserTypeValid &&
+    isDescriptionValid &&
     isNameValid &&
     isPhoneValid &&
     isCpfValid &&
     isCityValid &&
     isEmailValid &&
-    isPasswordValid
-  );
+    isPasswordValid;
+
+  console.log({
+    userType,
+    description,
+    name,
+    phone,
+    cpf,
+    city,
+    email,
+    password,
+    isUserTypeValid,
+    isDescriptionValid,
+    isNameValid,
+    isPhoneValid,
+    isCpfValid,
+    isCityValid,
+    isEmailValid,
+    isPasswordValid,
+    isFormValid,
+  });
+
+  form.submit().disabled = !isFormValid;
+}
+
+// Função para exibir ou ocultar o erro de campo obrigatório para a descrição
+function toggleDescriptionError() {
+  const description = form.description().value;
+  form.obrigatoryDescriptionError().style.display = description
+    ? "none"
+    : "block";
+}
+
+//habilita inserção de descrição
+function addDescription() {
+  const userType = form.userType().value;
+  if (userType == "Diarista") {
+    form.description().style.display = "block";
+  } else {
+    form.description().style.display = "none";
+  }
 }
 
 // Função para exibir ou ocultar o erro de campo obrigatório para o nome
@@ -177,6 +217,9 @@ function securePassword(password) {
 // Objeto `form` para mapear os elementos do formulário, facilitando o acesso aos elementos HTML
 const form = {
   form: () => document.getElementById("form"),
+  description: () => document.getElementById("descriptionInput"),
+  obrigatoryDescriptionError: () =>
+    document.getElementById("obrigatoryDescriptionError"),
   userType: () => document.getElementById("userType"),
   name: () => document.getElementById("name"),
   obrigatoryNameError: () => document.getElementById("obrigatoryNameError"),

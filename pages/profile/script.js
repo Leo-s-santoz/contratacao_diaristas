@@ -4,64 +4,95 @@ const description = document.getElementById("description");
 const descriptionInput = document.getElementById("description-input");
 const editButton = document.getElementById("edit-description-button");
 const saveButton = document.getElementById("save-description-button");
+const accessToken = sessionStorage.getItem("accessToken");
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get("id");
 
 document.addEventListener("DOMContentLoaded", () => {
   informationSearch();
   descriptionSearch();
+  cancelEdit();
 });
 
-//buscar informações
-async function informationSearch() {
-  const accessToken = sessionStorage.getItem("accessToken");
-  // Captura os parâmetros da URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const userId = urlParams.get("id");
-
+//esconder possibilidade de edição
+async function cancelEdit() {
   if (!userId) {
     console.error("ID do usuário não encontrado na URL.");
     return;
   }
 
   if (!accessToken) {
-    throw new Error("Token de acesso não encontrado. Faça login novamente.");
+    console.error("Token de acesso não encontrado. Faça login novamente.");
+    return;
   }
 
-  if (accessToken) {
-    try {
-      const response = await fetch(`/info/${userId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+  try {
+    const response = await fetch(`/account-info`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
 
-      if (!response.ok) {
-        throw new Error("Erro ao buscar perfil");
-      }
-
-      const data = await response.json();
-
-      document.getElementById("name").innerText = data.user.name;
-      document.getElementById("city").innerText = data.user.city;
-
-      if (data.profilePicture) {
-        profilePicture.src = data.profilePicture;
-      } else {
-        profilePicture.src = "/img/icons/profile-placeholder.jpg";
-      }
-    } catch (error) {
-      console.error("Erro: ", error);
+    if (!response.ok) {
+      throw new Error("Erro ao buscar perfil");
     }
-  } else {
-    console.log("Token não encontrado. Usuário não está logado.");
+
+    const data = await response.json();
+    // Verifica se o ID do URL é diferente do ID do usuário logado
+    if (userId != data.user.id) {
+      if (editButton) {
+        editButton.style.display = "none";
+      } else {
+        console.warn("Botão de edição não encontrado no DOM.");
+      }
+    }
+  } catch (error) {
+    console.error("Erro no cancelEdit:", error.message);
+  }
+}
+
+//buscar informações
+async function informationSearch() {
+  // Captura os parâmetros da URL
+
+  if (!userId) {
+    console.error("ID do usuário não encontrado na URL.");
+    return;
+  }
+  if (!accessToken) {
+    throw new Error("Token de acesso não encontrado. Faça login novamente.");
+  }
+  try {
+    const response = await fetch(`/info/${userId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao buscar perfil");
+    }
+
+    const data = await response.json();
+
+    document.getElementById("name").innerText = data.user.name;
+    document.getElementById("city").innerText = data.user.city;
+
+    if (data.user.profilePicture) {
+      profilePicture.src = data.user.profilePicture;
+    } else {
+      profilePicture.src = "/img/icons/profile-placeholder.jpg";
+    }
+  } catch (error) {
+    console.error("Erro: ", error);
   }
 }
 
 //buscar descricao
 async function descriptionSearch() {
   try {
-    const accessToken = sessionStorage.getItem("accessToken");
-
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get("id");
 
@@ -127,8 +158,6 @@ function saveDescription() {
 
 async function updateDescription(description) {
   try {
-    const accessToken = sessionStorage.getItem("accessToken");
-
     if (!accessToken) {
       return;
     }
@@ -179,8 +208,6 @@ async function uploadPhoto(file) {
   formData.append("image", file);
 
   try {
-    const accessToken = sessionStorage.getItem("accessToken");
-
     const response = await fetch("/upload-profile-picture", {
       method: "POST",
       headers: {

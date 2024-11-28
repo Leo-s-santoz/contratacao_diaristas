@@ -1,11 +1,10 @@
 const profilePicture = document.getElementById("profilePicture");
 const fileInput = document.getElementById("profilePictureInput");
+const accessToken = sessionStorage.getItem("accessToken");
 
 document.addEventListener("DOMContentLoaded", () => {
-  const accessToken = sessionStorage.getItem("accessToken");
-
   if (accessToken) {
-    fetch("/info", {
+    fetch("/account-info", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -18,10 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
       })
       .then((data) => {
-        document.getElementById("name").innerText = data.name;
-        document.getElementById("city").innerText = data.city;
-        if (data.profilePicture) {
-          profilePicture.src = data.profilePicture;
+        document.getElementById("name").innerText = data.user.name;
+        document.getElementById("city").innerText = data.user.city;
+        if (data.user.profilePicture) {
+          profilePicture.src = data.user.profilePicture;
         } else {
           profilePicture.src = "/img/icons/profile-placeholder.jpg";
         }
@@ -55,8 +54,6 @@ async function uploadPhoto(file) {
   formData.append("image", file);
 
   try {
-    const accessToken = sessionStorage.getItem("accessToken");
-
     const response = await fetch("/upload-profile-picture", {
       method: "POST",
       headers: {

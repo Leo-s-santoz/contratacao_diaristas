@@ -29,10 +29,22 @@ async function listDiaristas() {
 
         diaristasList.forEach((diarista) => {
           const listItem = document.createElement("li");
+
+          const profilePicture = diarista.profilePicture
+            ? diarista.profilePicture
+            : "/img/icons/profile-placeholder.jpg";
+
           listItem.innerHTML = `
-            <a href="/profile/profile.html?id=${diarista.id}">
-              <h3>${diarista.name}</h3>
-            </a>
+              <a href="/profile/profile.html?id=${diarista.id}">
+                  <div class="profile-list-item">
+                      <div class="profile-picture-container">
+                          <img class="profile-picture" src="${profilePicture}" alt="Foto de perfil">
+                      </div>
+                      <div class="profile-details">
+                          <h3>${diarista.name}</h3>
+                      </div>
+                  </div>
+              </a>
           `;
           listContainer.appendChild(listItem);
         });

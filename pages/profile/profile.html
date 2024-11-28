@@ -4,27 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>profile</title>
-    <link rel="stylesheet" href="style.css">
+    <!--<link rel="stylesheet" href="style.css">-->
     <link rel="stylesheet" href="/global/global.css">
 </head>
 <body>
     <div class="container">
         <nav class="nav-bar">
-            <a href="#" class="nav-logo"><!--<img src="/img/icons/home-icon.jpg">-->tudo em dia</a>
+            <a href="/pages/home/home.html" class="nav-logo">tudo em dia</a>
             <ul class="nav-menu">
-                <li class="nav-item"><button class="clear" id="account-button">Conta</button></li>
-                <li class="nav-item"><button class="clear" id="fav-button">Favoritos</button></li>
-                <li class="nav-item"><button class="clear" id="chats-button">Chats</button></li>
+                <li class="nav-item"><a href="/pages/account/account.html" class="clear">Conta</a></li>
+                <li class="nav-item"><a href="/favoritos" class="clear">Favoritos</a></li>
+                <li class="nav-item"><a href="/chats" class="clear">Chats</a></li>
             </ul>
         </nav>
-
         <br>
         <br>
-
         <section class="profile-container">
             <div class="profile-card">
-                
-                <picture class="profile-picture">
+                <picture class="picture-container">
                     <div class="image-wrapper">
                         <img class="profile-picture" id="profilePicture" src="" alt="Foto de perfil" onclick="openFileInput()">
                         <span class="hover-text">Atualizar Foto</span>
@@ -33,36 +30,37 @@
                         <input type="file" id="profilePictureInput" name="image" accept="image/*" required hidden>
                     </form>
                 </picture>
-
-                <div class="rating-container">
-                    <div class="rating">
-                        <input type="radio" name="rating" id="star5" value="5">
-                        <label for="star5"></label>
-                        
-                        <input type="radio" name="rating" id="star4" value="4">
-                        <label for="star4"></label>
-
-                        <input type="radio" name="rating" id="star3" value="3">
-                        <label for="star3"></label>
-
-                        <input type="radio" name="rating" id="star2" value="2">
-                        <label for="star2"></label>
-
-                        <input type="radio" name="rating" id="star1" value="1">
-                        <label for="star1"></label>
-                    </div>
-                </div>
+                
             </div>
 
             <div class="profile-details">
                 <h2 class="title" id="name">name</h2>
                 <h2 class="title" id="city">city</h2>
             </div>
+        
 
-            <div class="contact-button-container">
-                <button class="contact-button" id="contact-button">Entre em contato</button>
-            </div>
+            <div class="rating-container">
+                <div class="rating">
+                    <input type="radio" name="rating" id="star5" value="5">
+                    <label for="star5"></label>
+                    
+                    <input type="radio" name="rating" id="star4" value="4">
+                    <label for="star4"></label>
+
+                    <input type="radio" name="rating" id="star3" value="3">
+                    <label for="star3"></label>
+
+                    <input type="radio" name="rating" id="star2" value="2">
+                    <label for="star2"></label>
+
+                    <input type="radio" name="rating" id="star1" value="1">
+                    <label for="star1"></label>
+                </div>
         </section>
+
+        <div class="contact-button-container">
+            <button class="contact-button" id="contact-button">Entre em contato</button>
+        </div>
 
         <br>
         <br>

@@ -2,23 +2,30 @@ const Diarista = require("../models/diarista");
 
 async function authDiarista(req, res, next) {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id; // ID do usuário autenticado
+    const diaristaId = req.params.id; // ID do diarista passado na rota
 
-    const diarista = await Diarista.findOne({
-      where: { id_usuario: userId },
-    });
+    console.log(`Diarista ID: ${diaristaId}`);
+    console.log(`User ID: ${userId}`);
 
-    if (!diarista) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Acesso negado!" });
+    // Verifica se a diarista existe e pertence ao usuário autenticado
+    const diarista = await Diarista.findByPk(diaristaId);
+
+    if (!diarista || diarista.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Acesso negado!",
+      });
     }
-    //se não for barrado pela validação segue normalmente para a rota
+
+    // Se passar na validação, segue para a próxima função ou rota
     next();
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Erro de autoriazação " });
+    console.error("Erro no middleware authDiarista:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Erro de autorização",
+    });
   }
 }
 
