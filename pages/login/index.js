@@ -47,6 +47,26 @@ function validateEmail(email) {
   return emailPattern.test(email);
 }
 
+async function encryptToken(token) {
+  if (!token) {
+    throw new Error("Token não encontrado");
+  }
+  try {
+    const response = await fetch("/encrypt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    });
+    const result = await response.json();
+    return result.encryptedToken;
+  } catch (error) {
+    console.error("Erro ao encriptar token: ", error);
+    throw error;
+  }
+}
+
 async function login() {
   event.preventDefault();
 
@@ -54,29 +74,29 @@ async function login() {
   const password = document.getElementById("password").value;
 
   try {
-    // faz uma requisição POST para a rota /login
     const response = await fetch("/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }), // wnvia email e senha
+      body: JSON.stringify({ email, password }),
     });
 
     const result = await response.json();
 
-    // verifica a resposta do backend
     if (result.success) {
-      sessionStorage.setItem("accessToken", result.accessToken);
-      localStorage.setItem("refreshToken", result.refreshToken);
+      const encryptAccessToken = await encryptToken(result.accessToken);
+      const encryptRefreshToken = await encryptToken(result.refreshToken);
+
+      sessionStorage.setItem("accessToken", JSON.stringify(encryptAccessToken));
+      localStorage.setItem("refreshToken", JSON.stringify(encryptRefreshToken));
 
       if (result.userType == "Diarista") {
-        window.location.href = "/pages/profile/profile.html";
+        window.location.href = `/pages/profile/profile.html?id=${result.id}`;
         return;
       }
-      window.location.href = "/pages/home/home.html"; // redireciona o usuario
-    } else {
-      form.LoginCredentialError().style.display = "block";
+      window.location.href = "/pages/home/home.html";
+      document.getElementById("LoginCredentialError").style.display = "block";
     }
   } catch (error) {
     console.error("Erro ao fazer login:", error);

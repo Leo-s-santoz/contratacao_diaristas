@@ -4,19 +4,52 @@ const description = document.getElementById("description");
 const descriptionInput = document.getElementById("description-input");
 const editButton = document.getElementById("edit-description-button");
 const saveButton = document.getElementById("save-description-button");
-const accessToken = sessionStorage.getItem("accessToken");
-const urlParams = new URLSearchParams(window.location.search);
-const userId = urlParams.get("id");
 
-document.addEventListener("DOMContentLoaded", () => {
-  informationSearch();
-  descriptionSearch();
-  cancelEdit();
+let accessToken;
+let urlId;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    urlId = new URLSearchParams(window.location.search).get("id");
+    accessToken = await getToken();
+    await informationSearch();
+    await descriptionSearch();
+    await cancelEdit();
+  } catch (error) {
+    console.error("Erro durante o carregamento da página:", error.message);
+  }
 });
 
-//esconder possibilidade de edição
+async function getToken() {
+  const encryptedToken = JSON.parse(sessionStorage.getItem("accessToken"));
+
+  if (!encryptedToken) {
+    throw new Error("Token não encontrado no sessionStorage.");
+  }
+
+  try {
+    const response = await fetch("/decrypt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(encryptedToken),
+    });
+
+    const result = await response.json();
+
+    if (result.decryptedToken) {
+      return result.decryptedToken;
+    } else {
+      throw new Error("Falha ao descriptografar o token.");
+    }
+  } catch (error) {
+    console.error("Erro ao recuperar o token:", error);
+  }
+}
+
 async function cancelEdit() {
-  if (!userId) {
+  if (!urlId) {
     console.error("ID do usuário não encontrado na URL.");
     return;
   }
@@ -39,8 +72,7 @@ async function cancelEdit() {
     }
 
     const data = await response.json();
-    // Verifica se o ID do URL é diferente do ID do usuário logado
-    if (userId != data.user.id) {
+    if (urlId != data.user.id) {
       if (editButton) {
         editButton.style.display = "none";
       } else {
@@ -52,19 +84,18 @@ async function cancelEdit() {
   }
 }
 
-//buscar informações
 async function informationSearch() {
-  // Captura os parâmetros da URL
-
-  if (!userId) {
+  if (!urlId) {
     console.error("ID do usuário não encontrado na URL.");
     return;
   }
+
   if (!accessToken) {
     throw new Error("Token de acesso não encontrado. Faça login novamente.");
   }
+
   try {
-    const response = await fetch(`/info/${userId}`, {
+    const response = await fetch(`/info/${urlId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -90,22 +121,18 @@ async function informationSearch() {
   }
 }
 
-//buscar descricao
 async function descriptionSearch() {
+  if (!urlId) {
+    console.error("ID do usuário não encontrado na URL.");
+    return;
+  }
+
+  if (!accessToken) {
+    throw new Error("Token de acesso não encontrado. Faça login novamente.");
+  }
+
   try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get("id");
-
-    if (!userId) {
-      console.error("ID do usuário não encontrado na URL.");
-      return;
-    }
-
-    if (!accessToken) {
-      throw new Error("Token de acesso não encontrado. Faça login novamente.");
-    }
-
-    const response = await fetch(`/description/${userId}`, {
+    const response = await fetch(`/description/${urlId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -135,9 +162,7 @@ async function descriptionSearch() {
   }
 }
 
-//alterar informações
 function alterDescription() {
-  // Mostra o campo de edição e o botão de salvar
   descriptionInput.value = description.textContent;
   description.classList.add("hidden");
   descriptionInput.classList.remove("hidden");
@@ -146,7 +171,6 @@ function alterDescription() {
 }
 
 function saveDescription() {
-  // Salva o novo texto e restaura a exibição
   description.textContent = descriptionInput.value;
   description.classList.remove("hidden");
   descriptionInput.classList.add("hidden");
@@ -225,7 +249,7 @@ async function uploadPhoto(file) {
       alert(`Erro: ${data.message}`);
     }
   } catch (error) {
-    console.error("erro ao atualziar foto de perfil: ", error);
+    console.error("erro ao atualizar foto de perfil: ", error);
     alert("Algo deu errado, tente novamente mais tarde");
   }
 }

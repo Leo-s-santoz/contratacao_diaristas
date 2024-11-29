@@ -3,12 +3,14 @@ const { Sequelize } = require("sequelize");
 const express = require("express");
 const path = require("path");
 const router = express.Router();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+//models
 const User = require("./models/user");
 const Diarista = require("./models/diarista");
 const Contratante = require("./models/contratante");
-const bcrypt = require("bcrypt");
-const { hash } = require("crypto");
-const jwt = require("jsonwebtoken");
+
+//middleware
 const { authDiarista } = require("./middleware/authDiarista");
 const {
   generateAccessToken,
@@ -16,6 +18,7 @@ const {
   authenticateToken,
 } = require("./middleware/tokens");
 const { upload } = require("./middleware/cloudnary");
+const { decrypt, encrypt } = require("./middleware/encrypt");
 
 //config
 require("dotenv").config();
@@ -24,7 +27,7 @@ router.use(express.urlencoded({ extended: true }));
 //bcrypt
 const saltRounds = 10;
 
-//ROTAS
+////ROTAS////
 
 //login
 let refreshTokens = [];
@@ -65,6 +68,7 @@ router.post("/login", async (req, res) => {
         success: true,
         message: "Login bem-sucedido",
         userType: user.userType,
+        id: user.id,
         accessToken: accessToken,
         refreshToken: refreshToken,
       });
@@ -173,6 +177,47 @@ router.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Acesso permitido", user: req.user });
 });
 
+//envio de fotos para o bd em formato em formato de URL
+//LEMBRETE: add corte de imagem para formato 500x500
+router.post(
+  "/upload-profile-picture",
+  authenticateToken,
+  upload.single("image"),
+  (req, res) => {
+    //disponibilia a url em req.file.path
+    const imageUrl = req.file.path;
+
+    // Atualiza o perfil do usuário no bd com a URL da imagem
+    User.update({ profilePicture: imageUrl }, { where: { id: req.user.id } })
+      .then(() => res.json({ success: true, imageUrl }))
+      .catch((err) =>
+        res.status(500).json({ success: false, message: err.message })
+      );
+  }
+);
+
+//buscar informações pelo id do usuário logado
+router.get("/account-info", authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: ["id", "userType", "name", "phone", "city", "profilePicture"],
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuário não encontrado" });
+    }
+
+    res.json({ success: true, user: user.toJSON() });
+  } catch (error) {
+    console.error("Erro ao buscar informações do usuário:", error);
+    res.status(500).json({ success: false, message: "Erro no servidor" });
+  }
+});
+
 //recupera informações pelo id da url
 router.get("/info/:id", authenticateToken, async (req, res) => {
   const userId = req.params.id;
@@ -203,48 +248,7 @@ router.get("/info/:id", authenticateToken, async (req, res) => {
   }
 });
 
-//buscar informações pelo id do usuário logado
-router.get("/account-info", authenticateToken, async (req, res) => {
-  const userId = req.user.id;
-
-  try {
-    const user = await User.findByPk(userId, {
-      attributes: ["id", "name", "city", "profilePicture"],
-    });
-
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Usuário não encontrado" });
-    }
-
-    res.json({ success: true, user: user.toJSON() });
-  } catch (error) {
-    console.error("Erro ao buscar informações do usuário:", error);
-    res.status(500).json({ success: false, message: "Erro no servidor" });
-  }
-});
-
-//envio de fotos para o bd em formato em formato de URL
-//LEMBRETE: add corte de imagem para formato 500x500
-router.post(
-  "/upload-profile-picture",
-  authenticateToken,
-  upload.single("image"),
-  (req, res) => {
-    //disponibilia a url em req.file.path
-    const imageUrl = req.file.path;
-
-    // Atualiza o perfil do usuário no bd com a URL da imagem
-    User.update({ profilePicture: imageUrl }, { where: { id: req.user.id } })
-      .then(() => res.json({ success: true, imageUrl }))
-      .catch((err) =>
-        res.status(500).json({ success: false, message: err.message })
-      );
-  }
-);
-
-//recuperar descrução no bd
+//recuperar descrição no bd
 router.get("/description/:id", authenticateToken, async (req, res) => {
   try {
     const userId = req.params.id;
@@ -324,6 +328,41 @@ router.get("/list-diaristas", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar diaristas:", error);
     res.status(500).json({ message: "Erro ao buscar diaristas." });
+  }
+});
+
+//criptografar tokens
+router.post("/encrypt", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token é necessário." });
+    }
+
+    const encryptedToken = await encrypt(token);
+
+    res.json({ encryptedToken });
+  } catch (error) {
+    console.error("Erro na encriptação:", error);
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
+});
+
+//descriptografar tokens
+router.post("/decrypt", async (req, res) => {
+  const { encryptedData, iv, authTag } = req.body;
+
+  if (!encryptedData || !iv || !authTag) {
+    return res.status(400).json({ error: "Dados incompletos." });
+  }
+
+  try {
+    const decryptedToken = await decrypt(encryptedData, iv, authTag);
+    res.json({ decryptedToken });
+  } catch (error) {
+    console.error("Erro na descriptografia:", error);
+    res.status(500).json({ error: "Erro ao descriptografar o token." });
   }
 });
 

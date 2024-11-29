@@ -1,42 +1,79 @@
+// Função para recuperar o accessToken
+async function getToken() {
+  const encryptedToken = JSON.parse(sessionStorage.getItem("accessToken"));
+
+  if (!encryptedToken) {
+    throw new Error("Token não encontrado no sessionStorage.");
+  }
+
+  try {
+    const response = await fetch("/decrypt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(encryptedToken),
+    });
+
+    const result = await response.json();
+
+    if (result.decryptedToken) {
+      return result.decryptedToken;
+    } else {
+      throw new Error("Falha ao descriptografar o token.");
+    }
+  } catch (error) {
+    console.error("Erro ao recuperar o token:", error);
+  }
+}
+
+let accessToken;
+
+// Elementos do DOM
 const profilePicture = document.getElementById("profilePicture");
 const fileInput = document.getElementById("profilePictureInput");
-const accessToken = sessionStorage.getItem("accessToken");
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (accessToken) {
-    fetch("/account-info", {
+// Inicializa o accessToken e carrega os dados ao carregar a página
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    accessToken = await getToken();
+
+    if (!accessToken) {
+      console.log("Token não encontrado. Usuário não está logado.");
+      return;
+    }
+
+    const response = await fetch("/account-info", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erro ao buscar perfil");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        document.getElementById("name").innerText = data.user.name;
-        document.getElementById("city").innerText = data.user.city;
-        if (data.user.profilePicture) {
-          profilePicture.src = data.user.profilePicture;
-        } else {
-          profilePicture.src = "/img/icons/profile-placeholder.jpg";
-        }
-      })
-      .catch((error) => {
-        console.error("Erro: ", error);
-      });
-  } else {
-    console.log("Token não encontrado. Usuário não está logado.");
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao buscar perfil");
+    }
+
+    const data = await response.json();
+
+    // Atualiza as informações do perfil no DOM
+    document.getElementById("name").innerText = data.user.name;
+    document.getElementById("city").innerText = data.user.city;
+
+    profilePicture.src = data.user.profilePicture
+      ? data.user.profilePicture
+      : "/img/icons/profile-placeholder.jpg";
+  } catch (error) {
+    console.error("Erro ao carregar perfil: ", error);
   }
 });
 
+// Abre o seletor de arquivos
 function openFileInput() {
   fileInput.click();
 }
 
+// Listener para o evento de alteração no seletor de arquivos
 fileInput.addEventListener("change", handleFileSelect);
 
 function handleFileSelect() {
@@ -49,6 +86,7 @@ function handleFileSelect() {
   uploadPhoto(file);
 }
 
+// Função para enviar a foto de perfil ao servidor
 async function uploadPhoto(file) {
   const formData = new FormData();
   formData.append("image", file);
@@ -71,7 +109,7 @@ async function uploadPhoto(file) {
       alert(`Erro: ${data.message}`);
     }
   } catch (error) {
-    console.error("erro ao atualziar foto de perfil: ", error);
-    alert("Algo deu errado, tente novamente mais tarde");
+    console.error("Erro ao atualizar foto de perfil: ", error);
+    alert("Algo deu errado, tente novamente mais tarde.");
   }
 }
