@@ -1,14 +1,17 @@
 //imports
 const { Sequelize } = require("sequelize");
+const { Op } = require("sequelize");
 const express = require("express");
 const path = require("path");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 //models
 const User = require("./models/user");
 const Diarista = require("./models/diarista");
 const Contratante = require("./models/contratante");
+const Favorites = require("./models/favoritos");
 
 //middleware
 const { authDiarista } = require("./middleware/authDiarista");
@@ -19,6 +22,7 @@ const {
 } = require("./middleware/tokens");
 const { upload } = require("./middleware/cloudnary");
 const { decrypt, encrypt } = require("./middleware/encrypt");
+const { error } = require("console");
 
 //config
 require("dotenv").config();
@@ -305,17 +309,29 @@ router.post("/update-information", authenticateToken, async (req, res) => {
 //listar diaristas
 router.get("/list-diaristas", authenticateToken, async (req, res) => {
   try {
-    const { city } = req.user;
+    const { city, id } = req.user;
 
+    if (!id) {
+      return res.status(400).json({ message: "ID de usuário não fornecido." });
+    }
+
+    console.log("Consultando diaristas com filtros:", {
+      userType: "diarista",
+      city: city,
+      id: { [Op.ne]: id },
+    });
+
+    // Consulta ao banco de dados
     const diaristas = await User.findAll({
       where: {
         userType: "diarista",
         city: city,
+        id: { [Op.ne]: id },
       },
       attributes: ["id", "name", "profilePicture"],
     });
 
-    if (diaristas.length === 0) {
+    if (!diaristas || diaristas.length === 0) {
       return res
         .status(404)
         .json({ message: "Nenhum diarista encontrado na sua cidade." });
@@ -327,7 +343,10 @@ router.get("/list-diaristas", authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao buscar diaristas:", error);
-    res.status(500).json({ message: "Erro ao buscar diaristas." });
+    res.status(500).json({
+      message: "Erro ao buscar diaristas.",
+      error: error.message || error,
+    });
   }
 });
 
@@ -363,6 +382,89 @@ router.post("/decrypt", async (req, res) => {
   } catch (error) {
     console.error("Erro na descriptografia:", error);
     res.status(500).json({ error: "Erro ao descriptografar o token." });
+  }
+});
+
+//favoritar/desfavoritar
+router.post("/update-favorite", authenticateToken, async (req, res) => {
+  const { id } = req.user;
+  const { urlId, favorited } = req.body;
+
+  if (!urlId || favorited === undefined) {
+    return res.status(400).json({ error: "São necessários dados válidos." });
+  }
+
+  try {
+    const targetUser = await Contratante.findByPk(urlId);
+    if (!targetUser) {
+      return res
+        .status(404)
+        .json({ error: "Usuário a ser favoritado não encontrado." });
+    }
+
+    if (favorited) {
+      // adicionar favorito
+      const [favorite, created] = await Favorites.findOrCreate({
+        where: {
+          id_usuario: id,
+          id_favoritado: urlId,
+        },
+      });
+
+      if (created) {
+        return res
+          .status(201)
+          .json({ message: "Favorito adicionado com sucesso." });
+      }
+      return res.status(200).json({ message: "Usuário já está favoritado." });
+    }
+
+    // remover favorito
+    const result = await Favorites.destroy({
+      where: {
+        id_usuario: id,
+        id_favoritado: urlId,
+      },
+    });
+
+    if (result > 0) {
+      return res
+        .status(200)
+        .json({ message: "Favorito removido com sucesso." });
+    }
+
+    return res.status(404).json({ error: "Favorito não encontrado." });
+  } catch (error) {
+    console.error("Erro ao atualizar favorito:", error);
+    return res.status(500).json({ error: "Erro no servidor." });
+  }
+});
+
+//verificar favorito
+router.get("/verify-favorite/:urlId", authenticateToken, async (req, res) => {
+  const { id } = req.user;
+  const { urlId } = req.params;
+
+  if (!urlId || !id) {
+    return res.status(400).json({ error: "São necessários dados válidos." });
+  }
+
+  try {
+    const isFavorited = await Favorites.findOne({
+      where: {
+        id_usuario: id,
+        id_favoritado: urlId,
+      },
+    });
+
+    if (isFavorited) {
+      res.status(200).json({ isFavorited: true });
+    } else {
+      res.status(200).json({ isFavorited: false });
+    }
+  } catch (error) {
+    console.error("Erro ao verificar favorito:", error);
+    res.status(500).json({ error: "Busca mal sucedida." });
   }
 });
 

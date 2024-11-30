@@ -24,7 +24,7 @@
                 <picture class="picture-container">
                     <div class="image-wrapper">
                         <img class="profile-picture" id="profilePicture" src="" alt="Foto de perfil" onclick="openFileInput()">
-                        <span class="hover-text">Atualizar Foto</span>
+                        <span class="hover-text">Foto de perfil</span>
                     </div>
                     <form id="profile-picture-form">
                         <input type="file" id="profilePictureInput" name="image" accept="image/*" required hidden>
@@ -39,23 +39,11 @@
             </div>
         
 
-            <div class="rating-container">
-                <div class="rating">
-                    <input type="radio" name="rating" id="star5" value="5">
-                    <label for="star5"></label>
-                    
-                    <input type="radio" name="rating" id="star4" value="4">
-                    <label for="star4"></label>
-
-                    <input type="radio" name="rating" id="star3" value="3">
-                    <label for="star3"></label>
-
-                    <input type="radio" name="rating" id="star2" value="2">
-                    <label for="star2"></label>
-
-                    <input type="radio" name="rating" id="star1" value="1">
-                    <label for="star1"></label>
-                </div>
+            <div class="favorite-button">
+                <input type="checkbox" id="favorite" onchange="toggleFavorite()"/>
+                <label for="favorite" class="heart"></label>
+              </div>
+              
         </section>
 
         <div class="contact-button-container">
@@ -76,6 +64,5 @@
         </section>
     </div>
     <script src="script.js"></script>
-    <script src="/global/score.js"></script>
 </body>
 </html>

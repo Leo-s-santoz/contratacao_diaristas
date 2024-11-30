@@ -483,3 +483,59 @@ textarea#description-input:focus {
     color: var(--placeholder-color);
     font-style: italic;
 }
+
+/*botão de favorito*/
+.favorite-button {
+    padding-right: 30px;
+    padding-bottom: 35px;
+    display: inline-block;
+    position: relative;
+    width: 60px;
+    height: 60px;
+  }
+  
+  /* Esconde o checkbox padrão */
+  .favorite-button input[type="checkbox"] {
+    display: none;
+  }
+  
+  /* Estilo do coração */
+  .heart {
+    position: relative;
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-color: #ccc;
+    transform: rotate(-45deg);
+    margin: 30px auto;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+  }
+  
+  /* Arcos superiores do coração */
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: inherit; /* Corrigido para herdar a cor */
+    border-radius: 50%;
+    transition: background-color 0.3s ease; /* Transição suave */
+  }
+  
+  /* Alinhamento dos arcos */
+  .heart::before {
+    top: -25px;
+    left: 0;
+  }
+  
+  .heart::after {
+    left: 25px;
+    top: 0;
+  }
+  
+  input[type="checkbox"]:checked + .heart {
+    background-color: #e63946;
+  }
+  

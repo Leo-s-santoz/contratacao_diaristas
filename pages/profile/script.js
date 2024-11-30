@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await informationSearch();
     await descriptionSearch();
     await cancelEdit();
+    await verifyFavorite();
   } catch (error) {
     console.error("Erro durante o carregamento da página:", error.message);
   }
@@ -73,6 +74,8 @@ async function cancelEdit() {
 
     const data = await response.json();
     if (urlId != data.user.id) {
+      fileInput.disabled = true;
+
       if (editButton) {
         editButton.style.display = "none";
       } else {
@@ -251,5 +254,59 @@ async function uploadPhoto(file) {
   } catch (error) {
     console.error("erro ao atualizar foto de perfil: ", error);
     alert("Algo deu errado, tente novamente mais tarde");
+  }
+}
+
+//favorite
+async function toggleFavorite() {
+  const checkbox = document.getElementById("favorite");
+  const isFavorited = checkbox.checked;
+
+  const data = {
+    token: accessToken,
+    urlId: urlId,
+    favorited: isFavorited,
+  };
+
+  try {
+    const response = await fetch("/update-favorite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      console.log(
+        `Favorito ${isFavorited ? "adicionado" : "removido"} com sucesso!`
+      );
+    } else {
+      console.error("Erro ao atualizar favorito.");
+    }
+  } catch (error) {
+    console.error("Erro de conexão:", error);
+  }
+}
+
+async function verifyFavorite() {
+  const checkbox = document.getElementById("favorite");
+
+  try {
+    const response = await fetch(`/verify-favorite/${urlId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      checkbox.checked = data.isFavorited;
+    }
+  } catch (error) {
+    console.error("Erro de conexão: ", error);
   }
 }
