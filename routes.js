@@ -42,7 +42,7 @@ router.post("/login", async (req, res) => {
 
   try {
     if (!email || !password) {
-      return res.json({ message: "Email e senha são obrigatórios." });
+      return res.json({ message: "Email e senha são obrigatórios" });
     }
     const user = await User.findOne({ where: { email } });
     if (!user) {
@@ -137,13 +137,13 @@ router.post("/add", async (req, res) => {
     if (!userType || !name || !phone || !cpf || !city || !email || !password) {
       return res
         .status(400)
-        .json({ message: "Todos os campos são obrigatórios." });
+        .json({ message: "Todos os campos são obrigatórios" });
     }
 
     if (userType == "Diarista" && !description) {
       return res
         .status(400)
-        .json({ message: "Descrição é obrigatória para diaristas." });
+        .json({ message: "Descrição é obrigatória para diaristas" });
     }
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -207,7 +207,15 @@ router.get("/account-info", authenticateToken, async (req, res) => {
 
   try {
     const user = await User.findByPk(userId, {
-      attributes: ["id", "userType", "name", "phone", "city", "profilePicture"],
+      attributes: [
+        "id",
+        "userType",
+        "email",
+        "name",
+        "phone",
+        "city",
+        "profilePicture",
+      ],
     });
 
     if (!user) {
@@ -283,7 +291,7 @@ router.post("/update-information", authenticateToken, async (req, res) => {
     const { description } = req.body;
 
     if (!description) {
-      return res.status(400).json({ error: "Descrição não fornecida." });
+      return res.status(400).json({ error: "Descrição não fornecida" });
     }
 
     const diarista = await Diarista.update(
@@ -292,7 +300,7 @@ router.post("/update-information", authenticateToken, async (req, res) => {
     );
 
     if (diarista[0] === 0) {
-      return res.status(404).json({ error: "Diarista não encontrada." });
+      return res.status(404).json({ error: "Diarista não encontrada" });
     }
 
     return res.json({
@@ -303,7 +311,33 @@ router.post("/update-information", authenticateToken, async (req, res) => {
     console.error("Erro ao atualizar perfil:", error.message);
     return res
       .status(500)
-      .json({ success: false, message: "Erro ao atualizar perfil." });
+      .json({ success: false, message: "Erro ao atualizar perfil" });
+  }
+});
+
+router.post("/update-city", authenticateToken, async (req, res) => {
+  const { id } = req.user;
+  const { city } = req.body;
+
+  if (!id || !city) {
+    return res.status(400).json({ error: "São necessários dados válidos" });
+  }
+
+  try {
+    const updateCity = await User.update({ city }, { where: { id: id } });
+
+    if (updateCity[0] === 0) {
+      return res.status(404).json({ error: "Usuario não encontrado" });
+    }
+
+    return res.json({
+      success: true,
+      message: "Perfil atualizado com sucesso!",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Erro ao atualizar perfil" });
   }
 });
 
@@ -313,7 +347,7 @@ router.get("/list-diaristas", authenticateToken, async (req, res) => {
     const { city, id } = req.user;
 
     if (!id) {
-      return res.status(400).json({ message: "ID de usuário não fornecido." });
+      return res.status(400).json({ message: "ID de usuário não fornecido" });
     }
 
     console.log("Consultando diaristas com filtros:", {
@@ -335,7 +369,7 @@ router.get("/list-diaristas", authenticateToken, async (req, res) => {
     if (!diaristas || diaristas.length === 0) {
       return res
         .status(404)
-        .json({ message: "Nenhum diarista encontrado na sua cidade." });
+        .json({ message: "Nenhum diarista encontrado na sua cidade" });
     }
 
     res.status(200).json({
@@ -345,7 +379,7 @@ router.get("/list-diaristas", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar diaristas:", error);
     res.status(500).json({
-      message: "Erro ao buscar diaristas.",
+      message: "Erro ao buscar diaristas",
       error: error.message || error,
     });
   }
@@ -357,7 +391,7 @@ router.post("/encrypt", async (req, res) => {
     const { token } = req.body;
 
     if (!token) {
-      return res.status(400).json({ error: "Token é necessário." });
+      return res.status(400).json({ error: "Token é necessário" });
     }
 
     const encryptedToken = await encrypt(token);
@@ -365,7 +399,7 @@ router.post("/encrypt", async (req, res) => {
     res.json({ encryptedToken });
   } catch (error) {
     console.error("Erro na encriptação:", error);
-    res.status(500).json({ error: "Erro interno no servidor." });
+    res.status(500).json({ error: "Erro interno no servidor" });
   }
 });
 
@@ -374,7 +408,7 @@ router.post("/decrypt", async (req, res) => {
   const { encryptedData, iv, authTag } = req.body;
 
   if (!encryptedData || !iv || !authTag) {
-    return res.status(400).json({ error: "Dados incompletos." });
+    return res.status(400).json({ error: "Dados incompletos" });
   }
 
   try {
@@ -382,7 +416,7 @@ router.post("/decrypt", async (req, res) => {
     res.json({ decryptedToken });
   } catch (error) {
     console.error("Erro na descriptografia:", error);
-    res.status(500).json({ error: "Erro ao descriptografar o token." });
+    res.status(500).json({ error: "Erro ao descriptografar o token" });
   }
 });
 
@@ -392,7 +426,7 @@ router.post("/update-favorite", authenticateToken, async (req, res) => {
   const { urlId, favorited } = req.body;
 
   if (!urlId || favorited === undefined) {
-    return res.status(400).json({ error: "São necessários dados válidos." });
+    return res.status(400).json({ error: "São necessários dados válidos" });
   }
 
   try {
@@ -404,7 +438,7 @@ router.post("/update-favorite", authenticateToken, async (req, res) => {
     if (!targetUser) {
       return res
         .status(404)
-        .json({ error: "Usuário a ser favoritado não encontrado." });
+        .json({ error: "Usuário a ser favoritado não encontrado" });
     }
 
     if (favorited) {
@@ -419,9 +453,9 @@ router.post("/update-favorite", authenticateToken, async (req, res) => {
       if (created) {
         return res
           .status(201)
-          .json({ message: "Favorito adicionado com sucesso." });
+          .json({ message: "Favorito adicionado com sucesso" });
       }
-      return res.status(200).json({ message: "Usuário já está favoritado." });
+      return res.status(200).json({ message: "Usuário já está favoritado" });
     }
 
     // remover favorito
@@ -433,15 +467,13 @@ router.post("/update-favorite", authenticateToken, async (req, res) => {
     });
 
     if (result > 0) {
-      return res
-        .status(200)
-        .json({ message: "Favorito removido com sucesso." });
+      return res.status(200).json({ message: "Favorito removido com sucesso" });
     }
 
-    return res.status(404).json({ error: "Favorito não encontrado." });
+    return res.status(404).json({ error: "Favorito não encontrado" });
   } catch (error) {
     console.error("Erro ao atualizar favorito:", error);
-    return res.status(500).json({ error: "Erro no servidor." });
+    return res.status(500).json({ error: "Erro no servidor" });
   }
 });
 
@@ -451,7 +483,7 @@ router.get("/verify-favorite/:urlId", authenticateToken, async (req, res) => {
   const { urlId } = req.params;
 
   if (!urlId || !id) {
-    return res.status(400).json({ error: "São necessários dados válidos." });
+    return res.status(400).json({ error: "São necessários dados válidos" });
   }
 
   try {
@@ -469,7 +501,7 @@ router.get("/verify-favorite/:urlId", authenticateToken, async (req, res) => {
     }
   } catch (error) {
     console.error("Erro ao verificar favorito:", error);
-    res.status(500).json({ error: "Busca mal sucedida." });
+    res.status(500).json({ error: "Busca mal sucedida" });
   }
 });
 
@@ -479,7 +511,7 @@ router.get("/search-favorites", authenticateToken, async (req, res) => {
     const { id } = req.user;
 
     if (!id) {
-      return res.status(400).json({ message: "ID de usuário não fornecido." });
+      return res.status(400).json({ message: "ID de usuário não fornecido" });
     }
 
     const favoritedIds = await Favorites.findAll({
@@ -490,7 +522,7 @@ router.get("/search-favorites", authenticateToken, async (req, res) => {
     if (!favoritedIds || favoritedIds.length === 0) {
       return res
         .status(404)
-        .json({ message: "Você ainda não favoritou nenhum diarista." });
+        .json({ message: "Você ainda não favoritou nenhum diarista" });
     }
 
     const diaristaIds = favoritedIds.map((record) => record.id_favoritado);
@@ -506,7 +538,7 @@ router.get("/search-favorites", authenticateToken, async (req, res) => {
     if (!diaristas || diaristas.length === 0) {
       return res
         .status(404)
-        .json({ message: "Nenhum diarista favoritado encontrado." });
+        .json({ message: "Nenhum diarista favoritado encontrado" });
     }
 
     res.status(200).json({
@@ -516,7 +548,7 @@ router.get("/search-favorites", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar diaristas favoritos:", error);
     res.status(500).json({
-      message: "Erro ao buscar diaristas favoritos.",
+      message: "Erro ao buscar diaristas favoritos",
       error: error.message || error,
     });
   }

@@ -59,6 +59,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Atualiza as informações do perfil no DOM
     document.getElementById("name").innerText = data.user.name;
     document.getElementById("city").innerText = data.user.city;
+    document.getElementById("phone").innerText = data.user.phone;
+    document.getElementById("email").innerText = data.user.email;
 
     profilePicture.src = data.user.profilePicture
       ? data.user.profilePicture
@@ -174,4 +176,30 @@ async function hideProfessionalProfile() {
   } catch (error) {
     console.error("Erro ao buscar perfil ou manipular DOM: ", error);
   }
+}
+
+//Função para mostrar e ocultar a seleção de cidades
+function showCitySelect() {
+  document.getElementById("city-select").classList.remove("hidden");
+  document.getElementById("save-city-button").classList.remove("hidden");
+  document.getElementById("edit-city-button").classList.add("hidden");
+}
+
+async function saveCity() {
+  const selectedCity = document.getElementById("city-select").value;
+
+  document.getElementById("city-select").classList.add("hidden");
+  document.getElementById("save-city-button").classList.add("hidden");
+  document.getElementById("edit-city-button").classList.remove("hidden");
+
+  const updateCity = await fetch("/update-city", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ city: selectedCity }),
+  })
+    .then((response) => response.json())
+    .catch((error) => console.error("Erro ao salvar a cidade:", error));
 }

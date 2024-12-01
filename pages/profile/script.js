@@ -81,6 +81,9 @@ async function cancelEdit() {
       } else {
         console.warn("Botão de edição não encontrado no DOM.");
       }
+    } else {
+      const favoriteButton = document.getElementById("favorite");
+      favoriteButton.disabled = true;
     }
   } catch (error) {
     console.error("Erro no cancelEdit:", error.message);
@@ -113,6 +116,7 @@ async function informationSearch() {
 
     document.getElementById("name").innerText = data.user.name;
     document.getElementById("city").innerText = data.user.city;
+    document.getElementById("phone").innerText = data.user.phone;
 
     if (data.user.profilePicture) {
       profilePicture.src = data.user.profilePicture;
@@ -310,3 +314,5 @@ async function verifyFavorite() {
     console.error("Erro de conexão: ", error);
   }
 }
+
+function sendEmail() {}

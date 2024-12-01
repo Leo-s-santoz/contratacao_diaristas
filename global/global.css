@@ -141,6 +141,10 @@ body {
     text-transform: capitalize;
 }
 
+.profile-details .email {
+    text-transform: lowercase;
+}
+
 /* History Section */
 .history-container {
     margin-top: 30px;
@@ -538,3 +542,35 @@ textarea#description-input:focus {
     background-color: #e63946;
   }
   
+/* Estiliza o select */
+#city-select {
+    width: 200px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Estiliza o select ao passar o mouse */
+#city-select:hover {
+    border-color: #007bff;
+    box-shadow: 2px 2px 10px rgba(0, 123, 255, 0.2);
+}
+
+/* Estiliza o select quando está ativo */
+#city-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 2px 2px 10px rgba(0, 123, 255, 0.4);
+    background-color: #fff;
+}
+
+/* Esconde o select inicialmente (combinado com a classe hidden) */
+.hidden {
+    display: none;
+}

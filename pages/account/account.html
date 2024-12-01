@@ -6,6 +6,7 @@
     <title>account</title>
     <!--<link rel="stylesheet" href="style.css">-->
     <link rel="stylesheet" href="/global/global.css">
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <div class="container">
@@ -37,11 +38,29 @@
             </div>
 
             <div class="profile-details">
-                <h2 class="title" id="name">name</h2>
-                <h2 class="title" id="city">city</h2>
+                <div>
+                    <h2 class="title" id="name">name</h2>
+                    <h2 class="title" id="city">city</h2>        
+                </div>
+                <div>
+                    <h2 class="title" id="phone">phone</h2>
+                    <h2 class="title email" id="email">email</h2>
+                </div>
             </div>
-
         </section>
+
+        <section class="info-container">
+            <div>
+                <button class="button" id="edit-city-button" onclick="showCitySelect()">Mudar Cidade</button>
+                <select id="city-select" class="hidden">
+                    <option value="">Selecione</option>
+                    <option value="Fraiburgo">Fraiburgo</option>
+                    <option value="Videira">Videira</option>
+                </select>
+                <button class="button hidden" id="save-city-button" onclick="saveCity()">Salvar</button>
+            </div>
+        </section>
+        
 
         <section class="history-container">
             <h2 class="title">histórico: </h2>
