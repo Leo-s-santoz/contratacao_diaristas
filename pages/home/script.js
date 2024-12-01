@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     urlId = urlParams.get("id");
 
-    accessToken = await getToken(); // Carrega o token
+    accessToken = await getToken();
     listDiaristas();
     hideProfessionalProfile();
   } catch (error) {
@@ -44,7 +44,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// Elementos do DOM
 const profissionalProfile = document.getElementById("profissionalProfile");
 
 // Função para esconder/mostrar o perfil profissional
@@ -80,7 +79,7 @@ async function hideProfessionalProfile() {
   }
 }
 
-// Função para listar diaristas
+//listar diaristas
 async function listDiaristas() {
   if (!accessToken) {
     console.error("Token de acesso não encontrado.");
@@ -139,7 +138,7 @@ async function listDiaristas() {
   }
 }
 
-// Função para redirecionar para o perfil da diarista logada
+//redirecionar para o perfil da diarista logada
 async function redirectDiaristaProfile() {
   if (!accessToken) {
     console.error("Token de acesso não encontrado. Faça login novamente.");

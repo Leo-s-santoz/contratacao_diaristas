@@ -521,7 +521,6 @@ textarea#description-input:focus {
     height: 50px;
     background-color: inherit; /* Corrigido para herdar a cor */
     border-radius: 50%;
-    transition: background-color 0.3s ease; /* Transição suave */
   }
   
   /* Alinhamento dos arcos */

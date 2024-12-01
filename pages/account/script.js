@@ -29,7 +29,6 @@ async function getToken() {
 
 let accessToken;
 
-// Elementos do DOM
 const profilePicture = document.getElementById("profilePicture");
 const fileInput = document.getElementById("profilePictureInput");
 
@@ -37,6 +36,7 @@ const fileInput = document.getElementById("profilePictureInput");
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     accessToken = await getToken();
+    hideProfessionalProfile();
 
     if (!accessToken) {
       console.log("Token não encontrado. Usuário não está logado.");
@@ -111,5 +111,67 @@ async function uploadPhoto(file) {
   } catch (error) {
     console.error("Erro ao atualizar foto de perfil: ", error);
     alert("Algo deu errado, tente novamente mais tarde.");
+  }
+}
+
+// Função para redirecionar para o perfil da diarista logada
+async function redirectDiaristaProfile() {
+  if (!accessToken) {
+    console.error("Token de acesso não encontrado. Faça login novamente.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/account-info`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao buscar perfil");
+    }
+
+    const data = await response.json();
+
+    console.log(data);
+
+    window.location.href = `/pages/profile/profile.html?id=${data.user.id}`;
+  } catch (error) {
+    console.log("Erro: ", error);
+  }
+}
+
+// Função para esconder/mostrar o perfil profissional
+async function hideProfessionalProfile() {
+  if (!accessToken) {
+    console.error("Token de acesso não encontrado. Faça login novamente.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/account-info", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Erro ao buscar perfil. Status: ${response.status} - ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (data.user.userType === "Diarista") {
+      profissionalProfile.style.display = "block";
+    } else {
+      profissionalProfile.style.display = "none";
+    }
+  } catch (error) {
+    console.error("Erro ao buscar perfil ou manipular DOM: ", error);
   }
 }

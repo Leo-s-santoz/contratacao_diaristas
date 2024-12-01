@@ -23,6 +23,7 @@ const {
 const { upload } = require("./middleware/cloudnary");
 const { decrypt, encrypt } = require("./middleware/encrypt");
 const { error } = require("console");
+const { url } = require("inspector");
 
 //config
 require("dotenv").config();
@@ -395,7 +396,11 @@ router.post("/update-favorite", authenticateToken, async (req, res) => {
   }
 
   try {
-    const targetUser = await Contratante.findByPk(urlId);
+    const targetUser = await User.findOne({
+      where: {
+        id: urlId,
+      },
+    });
     if (!targetUser) {
       return res
         .status(404)
@@ -465,6 +470,55 @@ router.get("/verify-favorite/:urlId", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Erro ao verificar favorito:", error);
     res.status(500).json({ error: "Busca mal sucedida." });
+  }
+});
+
+//buscar favorito
+router.get("/search-favorites", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    if (!id) {
+      return res.status(400).json({ message: "ID de usuário não fornecido." });
+    }
+
+    const favoritedIds = await Favorites.findAll({
+      where: { id_usuario: id },
+      attributes: ["id_favoritado"],
+    });
+
+    if (!favoritedIds || favoritedIds.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Você ainda não favoritou nenhum diarista." });
+    }
+
+    const diaristaIds = favoritedIds.map((record) => record.id_favoritado);
+
+    const diaristas = await User.findAll({
+      where: {
+        id: { [Op.in]: diaristaIds },
+        userType: "diarista",
+      },
+      attributes: ["id", "name", "profilePicture", "city"],
+    });
+
+    if (!diaristas || diaristas.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Nenhum diarista favoritado encontrado." });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: diaristas,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar diaristas favoritos:", error);
+    res.status(500).json({
+      message: "Erro ao buscar diaristas favoritos.",
+      error: error.message || error,
+    });
   }
 });
 
