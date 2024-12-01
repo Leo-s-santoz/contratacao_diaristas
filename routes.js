@@ -6,6 +6,8 @@ const path = require("path");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const SMTP_CONFIG = require("./mailerconfig");
 
 //models
 const User = require("./models/user");
@@ -31,6 +33,19 @@ require("dotenv").config();
 router.use(express.urlencoded({ extended: true }));
 //bcrypt
 const saltRounds = 10;
+//mailer
+const transporter = nodemailer.createTransport({
+  host: SMTP_CONFIG.host,
+  port: SMTP_CONFIG.port,
+  secure: false,
+  auth: {
+    user: SMTP_CONFIG.user,
+    pass: SMTP_CONFIG.pass,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
 ////ROTAS////
 
@@ -551,6 +566,34 @@ router.get("/search-favorites", authenticateToken, async (req, res) => {
       message: "Erro ao buscar diaristas favoritos",
       error: error.message || error,
     });
+  }
+});
+
+//enviar email de contato
+router.post("/send-mail", authenticateToken, async (req, res) => {
+  const dataContratante = req.body.dataContratante.user;
+  const dataDiarista = req.body.dataDiarista.user;
+
+  if (!dataContratante || !dataDiarista) {
+    console.error("Busca de usuários mal sucedida: ", error);
+  } else {
+    try {
+      const mailerOptions = {
+        from: SMTP_CONFIG.user,
+        to: dataDiarista.email,
+        replyTo: dataContratante.email,
+        subject: "Tenho interesse em contratar seu serviço de diarista!",
+        text: `Olá me chamo ${dataContratante.name}, achei seu perfil no Tudo em dia e gostaria de contratar seu serviço de diarista, por favor entre em contato pelo número ${dataContratante.phone}, responda a este email, ou envie diretamente para ${dataContratante.email}`,
+      };
+
+      //evniar
+      const info = await transporter.sendMail(mailerOptions);
+      console.log("Email enviado: ", info.response);
+
+      return res.status(200).json({ message: "Email enviado com sucesso!" });
+    } catch (error) {
+      console.error("Erro ao enviar email: ", error);
+    }
   }
 });
 

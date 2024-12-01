@@ -315,4 +315,59 @@ async function verifyFavorite() {
   }
 }
 
-function sendEmail() {}
+//enviar email para diarista entrar em contato com contratante
+async function sendEmail() {
+  if (!accessToken || !urlId) {
+    console.error("São necessários dados válidos: ");
+    return;
+  }
+  try {
+    const responseContratante = await fetch(`/account-info`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const responseDiarista = await fetch(`/info/${urlId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!responseContratante.ok || !responseDiarista.ok) {
+      console.error("Erro ao recuperar dados de usuarios");
+      return;
+    }
+
+    const dataContratante = await responseContratante.json();
+    const dataDiarista = await responseDiarista.json();
+
+    if (dataContratante && dataDiarista) {
+      try {
+        const response = await fetch("/send-mail", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json", // Define o tipo do conteúdo
+          },
+          body: JSON.stringify({
+            dataContratante,
+            dataDiarista,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error("Erro ao enviar e-mail");
+        } else {
+          alert("Email enviado com Sucesso ;)");
+        }
+      } catch (error) {
+        console.error("Erro ao enviar e-mail:", error);
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao buscar informações:", error);
+  }
+}
