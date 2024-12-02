@@ -1,46 +1,16 @@
-// Função para recuperar o accessToken
-async function getToken() {
-  const encryptedToken = JSON.parse(sessionStorage.getItem("accessToken"));
-
-  if (!encryptedToken) {
-    throw new Error("Token não encontrado no sessionStorage.");
-  }
-
-  try {
-    const response = await fetch("/decrypt", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(encryptedToken),
-    });
-
-    const result = await response.json();
-
-    if (result.decryptedToken) {
-      return result.decryptedToken;
-    } else {
-      throw new Error("Falha ao descriptografar o token.");
-    }
-  } catch (error) {
-    console.error("Erro ao recuperar o token:", error);
-  }
-}
-
-let accessToken;
-
 //recuperar accessToken global
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     accessToken = await getToken();
-    hideProfessionalProfile();
-    searchFavorites();
-    listFavoriteDiaristas();
+    console.log(accessToken);
 
     if (!accessToken) {
-      console.log("Token não encontrado. Usuário não está logado.");
-      return;
+      throw new Error("AccessToken não recuperado com sucesso.");
     }
+
+    await hideProfessionalProfile();
+    await searchFavorites();
+    await listFavoriteDiaristas();
 
     const response = await fetch("/account-info", {
       method: "GET",
@@ -56,6 +26,78 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Erro ao carregar perfil: ", error);
   }
 });
+
+async function getToken() {
+  const encryptedToken = JSON.parse(sessionStorage.getItem("accessToken"));
+  const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
+
+  if (!encryptedToken || !refreshToken) {
+    throw new Error("Tokens não encontrados no armazenamento.");
+  }
+
+  try {
+    // Descriptografar o access token
+    const response = await fetch("/decrypt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(encryptedToken),
+    });
+
+    const result = await response.json();
+
+    if (result.decryptedToken) {
+      return result.decryptedToken;
+    }
+
+    // Caso o token esteja expirado
+    if (result.error === "Token expirado" && refreshToken) {
+      const refreshResponse = await fetch("/new-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(refreshToken),
+      });
+
+      const refreshResult = await refreshResponse.json();
+
+      if (refreshResult.accessToken) {
+        // Encriptar o novo token
+        const responseNewToken = await fetch("/encrypt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: refreshResult.accessToken }),
+        });
+
+        const newEncryptedToken = await responseNewToken.json();
+
+        if (newEncryptedToken && newEncryptedToken.encryptedToken) {
+          sessionStorage.setItem(
+            "accessToken",
+            JSON.stringify(newEncryptedToken.encryptedToken)
+          );
+          return refreshResult.accessToken;
+        } else {
+          throw new Error("Erro ao encriptar o novo token.");
+        }
+      } else {
+        throw new Error("Falha ao renovar o token.");
+      }
+    } else {
+      throw new Error("Falha ao descriptografar o token.");
+    }
+  } catch (error) {
+    console.error("Erro ao recuperar o token:", error);
+    accessToken = null; //Em ultimo caso atribui nulo
+    throw error;
+  }
+}
+
+let accessToken;
 
 // Função para redirecionar para o perfil da diarista logada
 async function redirectDiaristaProfile() {
@@ -77,8 +119,6 @@ async function redirectDiaristaProfile() {
     }
 
     const data = await response.json();
-
-    console.log(data);
 
     window.location.href = `/pages/profile/profile.html?id=${data.user.id}`;
   } catch (error) {

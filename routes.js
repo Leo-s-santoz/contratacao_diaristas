@@ -122,22 +122,11 @@ router.post("/login", async (req, res) => {
   }
 });
 
-//renovação de tokens
-router.post("/token", (req, res) => {
-  const refreshToken = req.body.token;
-  if (!refreshToken) return res.sendStatus(401);
-  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    const accessToken = generateAccessToken({ name: user.name });
-    res.json({ accessToken: accessToken });
-  });
-});
-
 //loggout revogação de tokens
-router.delete("/logout", (req, res) => {
+router.delete("/logout", authenticateToken, (req, res) => {
   const refreshToken = req.body.token;
   refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+  console.log(refreshTokens);
   res.sendStatus(204);
 });
 
@@ -300,35 +289,40 @@ router.get("/description/:id", authenticateToken, async (req, res) => {
 });
 
 //alterar informações de diarista
-router.post("/update-information", authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { description } = req.body;
+router.post(
+  "/update-information",
+  authenticateToken,
+  authDiarista,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { description } = req.body;
 
-    if (!description) {
-      return res.status(400).json({ error: "Descrição não fornecida" });
+      if (!description) {
+        return res.status(400).json({ error: "Descrição não fornecida" });
+      }
+
+      const diarista = await Diarista.update(
+        { description },
+        { where: { id_usuario: userId } }
+      );
+
+      if (diarista[0] === 0) {
+        return res.status(404).json({ error: "Diarista não encontrada" });
+      }
+
+      return res.json({
+        success: true,
+        message: "Perfil atualizado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error.message);
+      return res
+        .status(500)
+        .json({ success: false, message: "Erro ao atualizar perfil" });
     }
-
-    const diarista = await Diarista.update(
-      { description },
-      { where: { id_usuario: userId } }
-    );
-
-    if (diarista[0] === 0) {
-      return res.status(404).json({ error: "Diarista não encontrada" });
-    }
-
-    return res.json({
-      success: true,
-      message: "Perfil atualizado com sucesso!",
-    });
-  } catch (error) {
-    console.error("Erro ao atualizar perfil:", error.message);
-    return res
-      .status(500)
-      .json({ success: false, message: "Erro ao atualizar perfil" });
   }
-});
+);
 
 router.post("/update-city", authenticateToken, async (req, res) => {
   const { id } = req.user;
@@ -341,7 +335,7 @@ router.post("/update-city", authenticateToken, async (req, res) => {
   try {
     const updateCity = await User.update({ city }, { where: { id: id } });
 
-    if (updateCity[0] === 0) {
+    if (updateCity[0] == 0) {
       return res.status(404).json({ error: "Usuario não encontrado" });
     }
 
@@ -360,18 +354,10 @@ router.post("/update-city", authenticateToken, async (req, res) => {
 router.get("/list-diaristas", authenticateToken, async (req, res) => {
   try {
     const { city, id } = req.user;
-
     if (!id) {
       return res.status(400).json({ message: "ID de usuário não fornecido" });
     }
 
-    console.log("Consultando diaristas com filtros:", {
-      userType: "diarista",
-      city: city,
-      id: { [Op.ne]: id },
-    });
-
-    // Consulta ao banco de dados
     const diaristas = await User.findAll({
       where: {
         userType: "diarista",
@@ -428,10 +414,51 @@ router.post("/decrypt", async (req, res) => {
 
   try {
     const decryptedToken = await decrypt(encryptedData, iv, authTag);
-    res.json({ decryptedToken });
+
+    jwt.verify(decryptedToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) {
+        if (err.name === "TokenExpiredError") {
+          return res.status(403).json({ error: "Token expirado" });
+        }
+        return res.status(403).json({ error: "Token inválido" });
+      }
+
+      res.json({ decryptedToken });
+    });
   } catch (error) {
     console.error("Erro na descriptografia:", error);
     res.status(500).json({ error: "Erro ao descriptografar o token" });
+  }
+});
+
+//renovação de tokens
+router.post("/new-token", async (req, res) => {
+  const { encryptedData, iv, authTag } = req.body;
+
+  if (!encryptedData || !iv || !authTag) {
+    return res.status(400).json({ error: "Dados incompletos" });
+  }
+
+  try {
+    const refreshToken = await decrypt(encryptedData, iv, authTag);
+
+    if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return res.sendStatus(403);
+      const accessToken = generateAccessToken({
+        userType: user.userType,
+        name: user.name,
+        phone: user.phone,
+        city: user.city,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        id: user.id,
+      });
+      res.json({ accessToken: accessToken });
+    });
+  } catch (error) {
+    console.error("Erro na renovação do Token: ", error);
   }
 });
 

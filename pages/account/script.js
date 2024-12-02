@@ -1,12 +1,13 @@
-// Função para recuperar o accessToken
 async function getToken() {
   const encryptedToken = JSON.parse(sessionStorage.getItem("accessToken"));
+  const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
 
-  if (!encryptedToken) {
-    throw new Error("Token não encontrado no sessionStorage.");
+  if (!encryptedToken || !refreshToken) {
+    throw new Error("Tokens não encontrados no armazenamento.");
   }
 
   try {
+    // Descriptografar o access token
     const response = await fetch("/decrypt", {
       method: "POST",
       headers: {
@@ -19,15 +20,55 @@ async function getToken() {
 
     if (result.decryptedToken) {
       return result.decryptedToken;
+    }
+
+    // Caso o token esteja expirado
+    if (result.error === "Token expirado" && refreshToken) {
+      const refreshResponse = await fetch("/new-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(refreshToken),
+      });
+
+      const refreshResult = await refreshResponse.json();
+
+      if (refreshResult.accessToken) {
+        // Encriptar o novo token
+        const responseNewToken = await fetch("/encrypt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: refreshResult.accessToken }),
+        });
+
+        const newEncryptedToken = await responseNewToken.json();
+
+        if (newEncryptedToken && newEncryptedToken.encryptedToken) {
+          sessionStorage.setItem(
+            "accessToken",
+            JSON.stringify(newEncryptedToken.encryptedToken)
+          );
+          return refreshResult.accessToken;
+        } else {
+          throw new Error("Erro ao encriptar o novo token.");
+        }
+      } else {
+        throw new Error("Falha ao renovar o token.");
+      }
     } else {
       throw new Error("Falha ao descriptografar o token.");
     }
   } catch (error) {
     console.error("Erro ao recuperar o token:", error);
+    accessToken = null; //Em ultimo caso atribui nulo
+    throw error;
   }
 }
-
 let accessToken;
+let urlId;
 
 const profilePicture = document.getElementById("profilePicture");
 const fileInput = document.getElementById("profilePictureInput");
@@ -35,6 +76,7 @@ const fileInput = document.getElementById("profilePictureInput");
 // Inicializa o accessToken e carrega os dados ao carregar a página
 document.addEventListener("DOMContentLoaded", async () => {
   try {
+    urlId = new URLSearchParams(window.location.search).get("id");
     accessToken = await getToken();
     hideProfessionalProfile();
 
@@ -98,6 +140,7 @@ async function uploadPhoto(file) {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        "diarista-id": urlId,
       },
       body: formData,
     });
@@ -111,8 +154,8 @@ async function uploadPhoto(file) {
       alert(`Erro: ${data.message}`);
     }
   } catch (error) {
-    console.error("Erro ao atualizar foto de perfil: ", error);
-    alert("Algo deu errado, tente novamente mais tarde.");
+    console.error("erro ao atualizar foto de perfil: ", error);
+    alert("Algo deu errado, tente novamente mais tarde");
   }
 }
 
@@ -178,13 +221,14 @@ async function hideProfessionalProfile() {
   }
 }
 
-//Função para mostrar e ocultar a seleção de cidades
+//mostrar e ocultar a seleção de cidades
 function showCitySelect() {
   document.getElementById("city-select").classList.remove("hidden");
   document.getElementById("save-city-button").classList.remove("hidden");
   document.getElementById("edit-city-button").classList.add("hidden");
 }
 
+//salvar mudança de cidade e fazer logout
 async function saveCity() {
   const selectedCity = document.getElementById("city-select").value;
 
@@ -192,14 +236,61 @@ async function saveCity() {
   document.getElementById("save-city-button").classList.add("hidden");
   document.getElementById("edit-city-button").classList.remove("hidden");
 
-  const updateCity = await fetch("/update-city", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({ city: selectedCity }),
-  })
-    .then((response) => response.json())
-    .catch((error) => console.error("Erro ao salvar a cidade:", error));
+  try {
+    const updateCity = await fetch("/update-city", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ city: selectedCity }),
+    });
+
+    if (updateCity.ok) {
+      alert(
+        "Sua cidade foi atualizada. É necessário entrar novamente para atualizar os dados."
+      );
+
+      //limpando o refreshToken
+      const encryptedToken = JSON.parse(localStorage.getItem("refreshToken"));
+
+      if (!encryptedToken) {
+        throw new Error("Token não encontrado no localStorage.");
+      }
+
+      const response = await fetch("/decrypt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(encryptedToken),
+      });
+
+      const decryptedToken = await response.json();
+
+      //remove da lista de refeshTokens autorizados
+      const logout = await fetch("/logout", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          token: decryptedToken,
+        }),
+      });
+
+      if (logout.ok) {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        window.location.href = "/pages/login/index.html";
+      }
+    } else {
+      const response = await updateCity.json();
+      console.error("Erro ao salvar a cidade:", response);
+    }
+  } catch (error) {
+    console.error("Erro ao salvar a cidade:", error);
+  }
 }

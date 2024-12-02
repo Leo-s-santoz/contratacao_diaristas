@@ -241,6 +241,15 @@ body {
     margin-top: 10px;
 }
 
+button:disabled {
+    background-color: #ccc; /* Cor de fundo cinza */
+    color: #666; /* Texto desbotado */
+    cursor: not-allowed; /* Ícone de cursor indicando que não pode ser clicado */
+    opacity: 0.7; /* Tornar visualmente mais "apagado" */
+    border: 1px solid #999; /* Borda mais clara */
+  }
+  
+
 .button:hover {
     background: #2563eb;
 }

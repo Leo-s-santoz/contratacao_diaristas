@@ -1,12 +1,13 @@
-// Pegar o accessToken globalmente
 async function getToken() {
   const encryptedToken = JSON.parse(sessionStorage.getItem("accessToken"));
+  const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
 
-  if (!encryptedToken) {
-    throw new Error("Token não encontrado no sessionStorage.");
+  if (!encryptedToken || !refreshToken) {
+    throw new Error("Tokens não encontrados no armazenamento.");
   }
 
   try {
+    // Descriptografar o access token
     const response = await fetch("/decrypt", {
       method: "POST",
       headers: {
@@ -19,11 +20,51 @@ async function getToken() {
 
     if (result.decryptedToken) {
       return result.decryptedToken;
+    }
+
+    // Caso o token esteja expirado
+    if (result.error === "Token expirado" && refreshToken) {
+      const refreshResponse = await fetch("/new-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(refreshToken),
+      });
+
+      const refreshResult = await refreshResponse.json();
+
+      if (refreshResult.accessToken) {
+        // Encriptar o novo token
+        const responseNewToken = await fetch("/encrypt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: refreshResult.accessToken }),
+        });
+
+        const newEncryptedToken = await responseNewToken.json();
+
+        if (newEncryptedToken && newEncryptedToken.encryptedToken) {
+          sessionStorage.setItem(
+            "accessToken",
+            JSON.stringify(newEncryptedToken.encryptedToken)
+          );
+          return refreshResult.accessToken;
+        } else {
+          throw new Error("Erro ao encriptar o novo token.");
+        }
+      } else {
+        throw new Error("Falha ao renovar o token.");
+      }
     } else {
       throw new Error("Falha ao descriptografar o token.");
     }
   } catch (error) {
     console.error("Erro ao recuperar o token:", error);
+    accessToken = null; //Em ultimo caso atribui nulo
+    throw error;
   }
 }
 
@@ -95,9 +136,17 @@ async function listDiaristas() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Erro ao buscar diaristas. Status: ${response.status} - ${response.statusText}`
-      );
+      const errorMessage = `Erro ao buscar diaristas. Status: ${response.status} - ${response.statusText}`;
+      console.error(errorMessage);
+
+      // Adicionar mensagem no HTML
+      const listContainer = document.getElementById("diaristas-list");
+      listContainer.innerHTML = `
+        <li class="error-message">
+          <p>Sem diaristas disponíveis na sua cidade.</p>
+        </li>
+      `;
+      return;
     }
 
     const data = await response.json();
@@ -138,7 +187,7 @@ async function listDiaristas() {
   }
 }
 
-//redirecionar para o perfil da diarista logada
+// Redirecionar para o perfil da diarista logada
 async function redirectDiaristaProfile() {
   if (!accessToken) {
     console.error("Token de acesso não encontrado. Faça login novamente.");
@@ -154,15 +203,19 @@ async function redirectDiaristaProfile() {
     });
 
     if (!response.ok) {
-      throw new Error("Erro ao buscar perfil");
+      throw new Error(`Erro ao buscar perfil. Status: ${response.status}`);
     }
 
     const data = await response.json();
+
+    if (!data || !data.user || !data.user.id) {
+      throw new Error("Dados do usuário inválidos ou incompletos.");
+    }
 
     console.log(data);
 
     window.location.href = `/pages/profile/profile.html?id=${data.user.id}`;
   } catch (error) {
-    console.log("Erro: ", error);
+    console.error("Erro ao redirecionar para o perfil:", error);
   }
 }

@@ -4,6 +4,7 @@ const description = document.getElementById("description");
 const descriptionInput = document.getElementById("description-input");
 const editButton = document.getElementById("edit-description-button");
 const saveButton = document.getElementById("save-description-button");
+const contactButton = document.getElementById("contact-button");
 
 let accessToken;
 let urlId;
@@ -12,9 +13,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     urlId = new URLSearchParams(window.location.search).get("id");
     accessToken = await getToken();
+    console.log(accessToken);
+
+    if (!accessToken) {
+      throw new Error("AccessToken não recuperado com sucesso.");
+    }
+
     await informationSearch();
     await descriptionSearch();
     await cancelEdit();
+    await cancelEmail();
     await verifyFavorite();
   } catch (error) {
     console.error("Erro durante o carregamento da página:", error.message);
@@ -23,12 +31,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function getToken() {
   const encryptedToken = JSON.parse(sessionStorage.getItem("accessToken"));
+  const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
 
-  if (!encryptedToken) {
-    throw new Error("Token não encontrado no sessionStorage.");
+  if (!encryptedToken || !refreshToken) {
+    throw new Error("Tokens não encontrados no armazenamento.");
   }
 
   try {
+    // Descriptografar o access token
     const response = await fetch("/decrypt", {
       method: "POST",
       headers: {
@@ -41,14 +51,55 @@ async function getToken() {
 
     if (result.decryptedToken) {
       return result.decryptedToken;
+    }
+
+    // Caso o token esteja expirado
+    if (result.error === "Token expirado" && refreshToken) {
+      const refreshResponse = await fetch("/new-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(refreshToken),
+      });
+
+      const refreshResult = await refreshResponse.json();
+
+      if (refreshResult.accessToken) {
+        // Encriptar o novo token
+        const responseNewToken = await fetch("/encrypt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: refreshResult.accessToken }),
+        });
+
+        const newEncryptedToken = await responseNewToken.json();
+
+        if (newEncryptedToken && newEncryptedToken.encryptedToken) {
+          sessionStorage.setItem(
+            "accessToken",
+            JSON.stringify(newEncryptedToken.encryptedToken)
+          );
+          return refreshResult.accessToken;
+        } else {
+          throw new Error("Erro ao encriptar o novo token.");
+        }
+      } else {
+        throw new Error("Falha ao renovar o token.");
+      }
     } else {
       throw new Error("Falha ao descriptografar o token.");
     }
   } catch (error) {
     console.error("Erro ao recuperar o token:", error);
+    accessToken = null; //Em ultimo caso atribui nulo
+    throw error;
   }
 }
 
+//desabilitar edição caso não seja o dono do perfil
 async function cancelEdit() {
   if (!urlId) {
     console.error("ID do usuário não encontrado na URL.");
@@ -87,6 +138,43 @@ async function cancelEdit() {
     }
   } catch (error) {
     console.error("Erro no cancelEdit:", error.message);
+  }
+}
+
+//desabilitar botão de envio de email
+async function cancelEmail() {
+  if (!urlId) {
+    console.error("ID do usuário não encontrado na URL.");
+    return;
+  }
+
+  if (!accessToken) {
+    console.error("Token de acesso não encontrado. Faça login novamente.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/account-info`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response) {
+      console.error("Erro ao obter informações de usuario");
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.user.id == urlId) {
+      if (contactButton) {
+        contactButton.disabled = true;
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao desabilitar envio de email: ", error);
   }
 }
 
@@ -187,6 +275,7 @@ function saveDescription() {
   updateDescription(description.textContent);
 }
 
+//atualizar descrição de diarista logada
 async function updateDescription(description) {
   try {
     if (!accessToken) {
@@ -198,6 +287,7 @@ async function updateDescription(description) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
+        "diarista-id": urlId,
       },
       body: JSON.stringify({ description }),
     });
@@ -234,6 +324,7 @@ function handleFileSelect() {
   uploadPhoto(file);
 }
 
+//enviar foto de perfil para o servidor
 async function uploadPhoto(file) {
   const formData = new FormData();
   formData.append("image", file);
@@ -243,6 +334,7 @@ async function uploadPhoto(file) {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        "diarista-id": urlId,
       },
       body: formData,
     });
@@ -294,6 +386,7 @@ async function toggleFavorite() {
   }
 }
 
+//verifica quais perfis estão favotitados
 async function verifyFavorite() {
   const checkbox = document.getElementById("favorite");
 
@@ -318,7 +411,7 @@ async function verifyFavorite() {
 //enviar email para diarista entrar em contato com contratante
 async function sendEmail() {
   if (!accessToken || !urlId) {
-    console.error("São necessários dados válidos: ");
+    console.error("São necessários dados válidos");
     return;
   }
   try {

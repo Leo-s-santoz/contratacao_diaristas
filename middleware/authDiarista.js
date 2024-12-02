@@ -2,16 +2,26 @@ const Diarista = require("../models/diarista");
 
 async function authDiarista(req, res, next) {
   try {
-    const userId = req.user.id; // ID do usuário autenticado
-    const diaristaId = req.params.id; // ID do diarista passado na rota
+    const userId = req.headers.id;
+    const diaristaId = req.headers["diarista-id"];
+
+    if (!diaristaId) {
+      return res.status(400).json({
+        success: false,
+        message: "diaristaId não fornecido no cabeçalho",
+      });
+    }
 
     console.log(`Diarista ID: ${diaristaId}`);
     console.log(`User ID: ${userId}`);
 
-    // Verifica se a diarista existe e pertence ao usuário autenticado
-    const diarista = await Diarista.findByPk(diaristaId);
+    const diarista = await Diarista.findOne({
+      where: {
+        id_usuario: diaristaId,
+      },
+    });
 
-    if (!diarista || diarista.userId !== userId) {
+    if (!diarista || diarista == null) {
       return res.status(403).json({
         success: false,
         message: "Acesso negado!",
